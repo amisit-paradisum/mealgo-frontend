@@ -12,9 +12,9 @@ export function LoginScreen({ onNext }: LoginScreenProps) {
     <div className="flex flex-col items-center justify-center min-h-screen px-[17px]">
       <div className="flex-1 flex items-center justify-center">
         <div className="text-center">
-          <img src="/logos/mealgo_logo.svg" alt="mealgo logo" />
-          <h1 className="text-4xl font-medium text-white ">mealgo</h1>
-          <p className="text-white text-[14px] font-medium">통합로그인</p>
+          <img src="/logos/mealgo_logo.svg" className="h-20 flex-1 m-auto" alt="mealgo logo" />
+          <h1 className="text-3xl font-medium text-white ">mealgo</h1>
+          <p className="text-white text-[12px] font-medium">통합로그인</p>
         </div>
       </div>
 
