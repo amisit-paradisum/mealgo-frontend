@@ -7,6 +7,7 @@ export const metadata: Metadata = {
   title: "mealgo - 통합로그인",
   description: "학교 급식 관리 앱",
   generator: "v0.app",
+  manifest: "/manifest.json",
 }
 
 export default function RootLayout({
@@ -18,7 +19,6 @@ export default function RootLayout({
     <html lang="ko">
       <body className="font-pretendard antialiased">
         {children}
-        <Analytics />
       </body>
     </html>
   )

@@ -243,7 +243,7 @@ export function MealScreen({ onNavigate }: MealScreenProps) {
           <h1 className={`text-xl font-bold ${textColor} mb-1`}>
             {currentDate.getFullYear()}년 {currentDate.getMonth() + 1}월 {currentDate.getDate()}일
           </h1>
-          <p className={`${textColor} opacity-50 text-xs`}>대덕소프트웨어마이스터고등학교</p>
+          <p className={`${textColor} opacity-50 text-xs mb-5`}>대덕소프트웨어마이스터고등학교</p>
         </div>
 
         {!settings.timeDisplay && (
@@ -288,7 +288,7 @@ export function MealScreen({ onNavigate }: MealScreenProps) {
                 {loading ? (
                   <div className={`text-center py-8 ${textColor} opacity-70`}>급식 정보를 불러오는 중...</div>
                 ) : currentMenu.length > 0 ? (
-                  <div className="space-y-2.5 text-center flex flex-col mt-4">
+                  <div className="space-y-2.5 text-center flex flex-col">
                     {currentMenu.map((item, i) => (
                       <p
                         key={i}

@@ -59,7 +59,7 @@ export function BookmarkScreen({ onNavigate }: BookmarkScreenProps) {
   }
 
   return (
-    <div className="flex flex-col min-h-screen bg-gradient-to-b from-[#000000] to-[#4325A5]">
+    <div className="flex flex-col min-h-screen bg-linear-to-b from-[#000000] to-[#4325A5]">
       <div className="flex-1 px-6 pt-12 pb-24">
         <div className="flex items-center gap-4 mb-6">
           <Button 
