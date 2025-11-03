@@ -153,9 +153,41 @@ export function MealScreen({ onNavigate }: MealScreenProps) {
     setTouchEnd(0)
   }
 
+  // 클릭으로 다음 메뉴 이동
+  const handleNextMeal = () => {
+    setDirection(1)
+    if (selectedMeal === 'breakfast') setSelectedMeal('lunch')
+    else if (selectedMeal === 'lunch') setSelectedMeal('dinner')
+    else {
+      const next = new Date(currentDate)
+      next.setDate(next.getDate() + 1)
+      setCurrentDate(next)
+      setSelectedMeal('breakfast')
+    }
+  }
+
+  // 클릭으로 이전 메뉴 이동
+  const handlePrevMeal = () => {
+    setDirection(-1)
+    if (selectedMeal === 'breakfast') {
+      const prev = new Date(currentDate)
+      prev.setDate(prev.getDate() - 1)
+      setCurrentDate(prev)
+      setSelectedMeal('dinner')
+    } else if (selectedMeal === 'lunch') setSelectedMeal('breakfast')
+    else setSelectedMeal('lunch')
+  }
+
   const currentMenu = mealData ? mealData[selectedMeal] || [] : []
-  const isBookmarked = (item: string) =>
-    bookmarks.some(b => item.includes(b) || b.includes(item))
+  
+  // 북마크 체크 함수 개선 - 부분 문자열 매칭
+  const isBookmarked = (item: string) => {
+    return bookmarks.some(bookmark => {
+      const normalizedItem = item.toLowerCase().replace(/\s+/g, '')
+      const normalizedBookmark = bookmark.toLowerCase().replace(/\s+/g, '')
+      return normalizedItem.includes(normalizedBookmark) || normalizedBookmark.includes(normalizedItem)
+    })
+  }
 
   const bgGradient = settings.darkMode
     ? "bg-gradient-to-b from-[#000000] to-[#4325A5]"
@@ -223,12 +255,24 @@ export function MealScreen({ onNavigate }: MealScreenProps) {
         )}
 
         <div
-          className="flex items-center justify-center overflow-hidden"
+          className="flex items-center justify-center overflow-hidden relative"
           onTouchStart={handleTouchStart}
           onTouchMove={handleTouchMove}
           onTouchEnd={handleTouchEnd}
         >
-          <div className="relative w-[80%] h-[300px]">
+          {/* 왼쪽 클릭 영역 - 이전 메뉴 */}
+          <div 
+            className="absolute left-0 top-0 bottom-0 w-[15%] z-10 cursor-pointer"
+            onClick={handlePrevMeal}
+          />
+          
+          {/* 오른쪽 클릭 영역 - 다음 메뉴 */}
+          <div 
+            className="absolute right-0 top-0 bottom-0 w-[15%] z-10 cursor-pointer"
+            onClick={handleNextMeal}
+          />
+
+          <div className="relative w-[80%] h-[350px]">
             <AnimatePresence custom={direction}>
               <motion.div
                 key={selectedMeal + currentDate.toDateString()}
@@ -250,10 +294,8 @@ export function MealScreen({ onNavigate }: MealScreenProps) {
                         key={i}
                         className={`text-lg font-medium tracking-wide ${
                           isBookmarked(item)
-                            ? 'text-[#5B9FFF]'
-                            : i === currentMenu.length - 1
-                              ? 'text-[#5B9FFF]'
-                              : textColor
+                            ? 'text-[#5B9FFF] font-bold'
+                            : textColor
                         }`}
                       >
                         {item}
