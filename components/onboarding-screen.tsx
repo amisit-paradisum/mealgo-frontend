@@ -16,7 +16,7 @@ export function OnboardingScreen({ onNext }: OnboardingScreenProps) {
       
       {/* 1. 상단 콘텐츠 (고정 영역) */}
       <div> 
-        <h1 className="text-[22px] font-bold text-white mb-[17px]">학교를 입력해주세요</h1>
+        <h1 className="text-[20px] font-bold text-white mb-[17px]">학교를 입력해주세요</h1>
         <div className="relative mb-8">
           <Input
             value={school}

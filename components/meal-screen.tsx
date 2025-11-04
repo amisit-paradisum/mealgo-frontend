@@ -1,5 +1,6 @@
 "use client"
 
+
 import { useState, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { Button } from "@/components/ui/button"
@@ -11,6 +12,8 @@ import axios from "axios"
 interface MealScreenProps {
   onNavigate: (screen: "meal" | "diet" | "bookmark" | "settings") => void
 }
+
+
 
 interface MealData {
   breakfast: string[]
@@ -49,6 +52,14 @@ export function MealScreen({ onNavigate }: MealScreenProps) {
     timeDisplay: false,
     highContrastMode: true,
   })
+
+const api = axios.create({
+  baseURL: "https://mealgo.whitefish.uk",
+  headers: {
+    "Content-Type": "application/json",
+    "Authorization": "Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbmFkbWluYWRtaTJuYWRtaW5hZG1pbmFkbWluYWQzbWluYWRtaW5hZG1pbmFkbWluYTRkbWluYWRtaW4xYWRtaW5hZG1pbmFkMm1pbmFkbWluYWRtaW5hNmRtaW5hZG1pbmEyZG1pbmFkbWluYWRtaW5hZG1pbmFkbWluYWRtaW5hZG1pbmFkbWluIiwiaWF0IjoxNzYyMjQyMTAxLCJleHAiOjI1MzQwMjI2ODM5OX0.ELddoPs-3Qrwhfi3aHfOHL6dZzs9SRWJz67WAvMhv1Y"
+  },
+})
 
   const mealNames = {
     breakfast: '조식',

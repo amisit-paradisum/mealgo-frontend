@@ -1,5 +1,4 @@
 "use client"
-
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -12,16 +11,14 @@ interface OnboardingGradeScreenProps {
 export function OnboardingGradeScreen({ onNext }: OnboardingGradeScreenProps) {
   const [grade, setGrade] = useState(0)
   const [classNum, setClassNum] = useState(0)
-  // ⭐️ classCount를 사용하여 반의 개수를 설정합니다. (현재 4개)
+  
   let classCount = 10; 
-
-  // ⭐️ classCount 수만큼 옵션을 생성하는 배열을 만듭니다.
   const classOptions = Array.from({ length: classCount }, (_, i) => i + 1);
 
   return (
     <div className="flex flex-col min-h-screen px-[17px] pt-[39px]">
-      <div> 
-        <h1 className="text-[24px] font-bold text-white mb-[22px]">학년과 반을 알려주세요</h1>
+      <div className="flex-1"> {/* ⭐️ 여기에 flex-1 추가 */}
+        <h1 className="text-[22px] font-bold text-white mb-[22px]">학년과 반을 알려주세요</h1>
         <div className="relative mb-[10px]">
           <p className="text-[16px] font-medium text-white mb-[8px]">학년</p>
           <select
@@ -41,14 +38,13 @@ export function OnboardingGradeScreen({ onNext }: OnboardingGradeScreenProps) {
           />
         </div>
         <div className="relative">
-          <p className="text-[16px] font-medium text-white mb-[8px]">반</p> {/* ⭐️ 텍스트 수정 */}
+          <p className="text-[16px] font-medium text-white mb-[8px]">반</p>
           <select
             value={classNum}
             onChange={(e) => setClassNum(Number(e.target.value))}
             className="w-full h-[66px] text-[14px] px-[20px] bg-black border border-white rounded-[8px] text-white appearance-none pr-12"
           >
             <option value={0} disabled hidden>반을 알려주세요</option>
-            {/* ⭐️ classCount에 따라 동적으로 옵션 생성 */}
             {classOptions.map((num) => (
               <option key={num} value={num}>{num}반</option>
             ))}
@@ -60,11 +56,13 @@ export function OnboardingGradeScreen({ onNext }: OnboardingGradeScreenProps) {
           />
         </div>
       </div>
-      <div className="flex-1 flex flex-col items-center justify-center opacity-[0.24]">
-          <img src="/logos/mealgo_logo.svg" alt="mealgo logo w-[114.58] h-[104.23]"/>
-          <h1 className="text-[34px] font-medium text-white ">mealgo</h1>
+
+      <div className="flex flex-col items-center justify-center opacity-[0.24] absolute inset-0 pointer-events-none"> {/* ⭐️ pointer-events-none 추가 권장 */}
+        <img src="/logos/mealgo_logo.svg" alt="mealgo logo w-[114.58] h-[104.23]"/>
+        <h1 className="text-[34px] font-medium text-white">mealgo</h1>
       </div>
-      <div className="pb-8">
+
+      <div className="pb-[20px]"> {/* ⭐️ flex-1 제거하고 padding 추가 (선택사항) */}
         <Button
           onClick={onNext}
           disabled={grade === 0 || classNum === 0}
