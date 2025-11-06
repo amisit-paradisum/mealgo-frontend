@@ -25,7 +25,7 @@ export function LoginScreen({ onNext }: LoginScreenProps) {
         >
           <Image 
             src="/logos/google.png" 
-            alt="구글 이미지" 
+            alt="구글 이미지"
             width={20} 
             height={20}
           />

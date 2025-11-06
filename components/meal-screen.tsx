@@ -1,6 +1,5 @@
 "use client"
 
-
 import { useState, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { Button } from "@/components/ui/button"
@@ -13,8 +12,6 @@ interface MealScreenProps {
   onNavigate: (screen: "meal" | "diet" | "bookmark" | "settings") => void
 }
 
-
-
 interface MealData {
   breakfast: string[]
   lunch: string[]
@@ -26,40 +23,47 @@ interface Settings {
   preferredMenuAlert: boolean
   timeDisplay: boolean
   highContrastMode: boolean
+  grade: string
+  className: string
 }
 
-// ✅ axios 인스턴스 생성
-const api = axios.create({
-  baseURL: "https://mealgo.whitefish.uk",
-  headers: {
-    "Content-Type": "application/json",
-  },
-})
+const API_KEY = 'fd185d8332d34309a4d21107f1927ffe'
+const ATPT_OFCDC_SC_CODE = 'G10'
+const SD_SCHUL_CODE = '7430310'
+
+axios.defaults.headers.common["Content-Type"] = "application/json"
 
 export function MealScreen({ onNavigate }: MealScreenProps) {
   const [showDateModal, setShowDateModal] = useState(false)
   const [currentDate, setCurrentDate] = useState(new Date())
   const [selectedMeal, setSelectedMeal] = useState<'breakfast' | 'lunch' | 'dinner'>('lunch')
-  const [mealData, setMealData] = useState<MealData | null>(null)
-  const [loading, setLoading] = useState(true)
+  const [mealData, setMealData] = useState<MealData>({ breakfast: [], lunch: [], dinner: [] })
+  const [loadingMeals, setLoadingMeals] = useState(true)
+  const [loadingTimetable, setLoadingTimetable] = useState(true)
   const [touchStart, setTouchStart] = useState(0)
   const [touchEnd, setTouchEnd] = useState(0)
   const [direction, setDirection] = useState(0)
   const [bookmarks, setBookmarks] = useState<string[]>([])
-  const [settings, setSettings] = useState<Settings>({
-    darkMode: true,
-    preferredMenuAlert: true,
-    timeDisplay: false,
-    highContrastMode: true,
+  const [settings, setSettings] = useState<Settings>(() => {
+    const raw = localStorage.getItem("mealAppSettings")
+    if (raw) {
+      try {
+        const parsed = JSON.parse(raw)
+        return {
+          darkMode: parsed.darkMode ?? true,
+          preferredMenuAlert: parsed.preferredMenuAlert ?? true,
+          timeDisplay: parsed.timeDisplay ?? false,
+          highContrastMode: parsed.highContrastMode ?? true,
+          grade: parsed.grade ?? "1",
+          className: parsed.className ?? "1",
+        }
+      } catch {
+        return { darkMode: true, preferredMenuAlert: true, timeDisplay: false, highContrastMode: true, grade: "1", className: "1" }
+      }
+    }
+    return { darkMode: true, preferredMenuAlert: true, timeDisplay: false, highContrastMode: true, grade: "1", className: "1" }
   })
-
-const api = axios.create({
-  baseURL: "https://mealgo.whitefish.uk",
-  headers: {
-    "Content-Type": "application/json",
-    "Authorization": "Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbmFkbWluYWRtaTJuYWRtaW5hZG1pbmFkbWluYWQzbWluYWRtaW5hZG1pbmFkbWluYTRkbWluYWRtaW4xYWRtaW5hZG1pbmFkMm1pbmFkbWluYWRtaW5hNmRtaW5hZG1pbmEyZG1pbmFkbWluYWRtaW5hZG1pbmFkbWluYWRtaW5hZG1pbmFkbWluIiwiaWF0IjoxNzYyMjQyMTAxLCJleHAiOjI1MzQwMjI2ODM5OX0.ELddoPs-3Qrwhfi3aHfOHL6dZzs9SRWJz67WAvMhv1Y"
-  },
-})
+  const [timetable, setTimetable] = useState<string[]>([])
 
   const mealNames = {
     breakfast: '조식',
@@ -72,13 +76,6 @@ const api = axios.create({
     if (savedBookmarks) {
       try {
         setBookmarks(JSON.parse(savedBookmarks))
-      } catch {}
-    }
-
-    const savedSettings = localStorage.getItem("mealAppSettings")
-    if (savedSettings) {
-      try {
-        setSettings(JSON.parse(savedSettings))
       } catch {}
     }
 
@@ -99,40 +96,46 @@ const api = axios.create({
     return () => window.removeEventListener("storage", handleStorageChange)
   }, [])
 
-  // ✅ 급식 데이터 불러오기
+  useEffect(() => {
+    localStorage.setItem("mealAppSettings", JSON.stringify(settings))
+  }, [settings])
+
   useEffect(() => {
     const fetchMealData = async () => {
-      setLoading(true)
+      setLoadingMeals(true)
       const y = currentDate.getFullYear()
       const m = String(currentDate.getMonth() + 1).padStart(2, '0')
       const d = String(currentDate.getDate()).padStart(2, '0')
-      const formattedDate = `${y}-${m}-${d}`
+      const formattedDate = `${y}${m}${d}`
 
       try {
-        const response = await api.get("/api/meal", {
+        const res = await axios.get("https://open.neis.go.kr/hub/mealServiceDietInfo", {
           params: {
-            schoolCode: "7430310",
-            date: formattedDate
-          }
+            KEY: API_KEY,
+            Type: "json",
+            ATPT_OFCDC_SC_CODE,
+            SD_SCHUL_CODE,
+            MLSV_YMD: formattedDate,
+          },
         })
 
-        const data = response.data
+        const raw = res.data
         const organized: MealData = { breakfast: [], lunch: [], dinner: [] }
 
-        if (data.meals && Array.isArray(data.meals)) {
-          for (const meal of data.meals) {
-            const menuItems = Array.isArray(meal.menu)
-              ? meal.menu.map((i: string) =>
-                  i.replace(/\d+\./g, '').replace(/\([^)]*\)/g, '').trim()
-                )
-              : []
-
-            if (meal.categories === '조식' || meal.categories === 'breakfast')
-              organized.breakfast = menuItems
-            else if (meal.categories === '중식' || meal.categories === 'lunch')
-              organized.lunch = menuItems
-            else if (meal.categories === '석식' || meal.categories === 'dinner')
-              organized.dinner = menuItems
+        if (raw && raw.mealServiceDietInfo && Array.isArray(raw.mealServiceDietInfo)) {
+          const body = raw.mealServiceDietInfo[1]
+          if (body && Array.isArray(body.row)) {
+            body.row.forEach((meal: any) => {
+              const dish = (meal.DDISH_NM || "")
+                .replace(/<br\/?>/gi, "\n")
+                .split("\n")
+                .map((s: string) => s.replace(/\d+\./g, '').replace(/\([^)]*\)/g, '').trim())
+                .filter((t: string) => t)
+              const category = (meal.MMEAL_SC_NM || "").toLowerCase()
+              if (category.includes('조식') || category.includes('breakfast')) organized.breakfast = dish
+              else if (category.includes('중식') || category.includes('lunch')) organized.lunch = dish
+              else if (category.includes('석식') || category.includes('dinner')) organized.dinner = dish
+            })
           }
         }
 
@@ -140,12 +143,64 @@ const api = axios.create({
       } catch {
         setMealData({ breakfast: [], lunch: [], dinner: [] })
       } finally {
-        setLoading(false)
+        setLoadingMeals(false)
       }
     }
 
     fetchMealData()
   }, [currentDate])
+
+  useEffect(() => {
+    const fetchTimetable = async () => {
+      setLoadingTimetable(true)
+      const y = currentDate.getFullYear()
+      const m = String(currentDate.getMonth() + 1).padStart(2, '0')
+      const d = String(currentDate.getDate()).padStart(2, '0')
+      const formattedDate = `${y}${m}${d}`
+
+      try {
+        const res = await axios.get("https://open.neis.go.kr/hub/hisTimetable", {
+          params: {
+            KEY: API_KEY,
+            Type: "json",
+            ATPT_OFCDC_SC_CODE,
+            SD_SCHUL_CODE,
+            ALL_TI_YMD: formattedDate,
+            GRADE: settings.grade,
+            CLASS_NM: settings.className,
+          },
+        })
+
+        const raw = res.data
+        let list: string[] = []
+
+        if (raw && raw.hisTimetable && Array.isArray(raw.hisTimetable)) {
+          const body = raw.hisTimetable[1]
+          if (body && Array.isArray(body.row)) {
+            const rows = body.row
+            const byPeriod: { [k: string]: string } = {}
+            rows.forEach((r: any) => {
+              const period = r.PERIO || r.PERIO ? String(r.PERIO) : (r.I_TRT_SEQ || r.ITRT_CNTNT || "")
+              const content = (r.ITRT_CNTNT || r.GSUBJECT_NM || "").trim()
+              if (period) byPeriod[period] = content
+            })
+            const maxPeriod = Math.max(...Object.keys(byPeriod).map(k => parseInt(k)).filter(n => !isNaN(n)), 8)
+            for (let p = 1; p <= (maxPeriod || 8); p++) {
+              list.push(byPeriod[String(p)] || "")
+            }
+          }
+        }
+
+        setTimetable(list)
+      } catch {
+        setTimetable([])
+      } finally {
+        setLoadingTimetable(false)
+      }
+    }
+
+    fetchTimetable()
+  }, [currentDate, settings.grade, settings.className])
 
   const handleTouchStart = (e: React.TouchEvent) => setTouchStart(e.targetTouches[0].clientX)
   const handleTouchMove = (e: React.TouchEvent) => setTouchEnd(e.targetTouches[0].clientX)
@@ -199,12 +254,12 @@ const api = axios.create({
   }
 
   const currentMenu = mealData ? mealData[selectedMeal] || [] : []
-  
+
   const isBookmarked = (item: string) => {
     return bookmarks.some(bookmark => {
-      const normalizedItem = item.toLowerCase().replace(/\s+/g, '')
-      const normalizedBookmark = bookmark.toLowerCase().replace(/\s+/g, '')
-      return normalizedItem.includes(normalizedBookmark) || normalizedBookmark.includes(normalizedItem)
+      const a = item.toLowerCase().replace(/\s+/g, '')
+      const b = bookmark.toLowerCase().replace(/\s+/g, '')
+      return a.includes(b) || b.includes(a)
     })
   }
 
@@ -264,27 +319,21 @@ const api = axios.create({
           </h1>
           <p className={`${textColor} opacity-50 text-xs mb-10`}>대덕소프트웨어마이스터고등학교</p>
         </div>
+
         <div
           className="flex items-center justify-center overflow-hidden relative"
           onTouchStart={handleTouchStart}
           onTouchMove={handleTouchMove}
           onTouchEnd={handleTouchEnd}
         >
-          <div 
-            className="absolute left-0 top-0 bottom-0 w-[15%] z-10 cursor-pointer"
-            onClick={handlePrevMeal}
-          />
-          
-          <div 
-            className="absolute right-0 top-0 bottom-0 w-[15%] z-10 cursor-pointer"
-            onClick={handleNextMeal}
-          />
+          <div className="absolute left-0 top-0 bottom-0 w-[15%] z-10 cursor-pointer" onClick={handlePrevMeal} />
+          <div className="absolute right-0 top-0 bottom-0 w-[15%] z-10 cursor-pointer" onClick={handleNextMeal} />
 
-          <div className="relative font-bold w-[80%] h-[350px]">
+          <div className="relative font-bold w-[80%] h-[350px] rounded-3xl ">
             <AnimatePresence custom={direction}>
               <motion.div
                 key={selectedMeal + currentDate.toDateString()}
-                className={`absolute w-full h-full ${cardBg} backdrop-blur-ls rounded-3xl p-5 border ${
+                className={`absolute w-full h-full ${cardBg} bg-[#000000]/80 rounded-3xl p-5 border ${
                   settings.highContrastMode ? 'border-white/20' : 'border-white/10'
                 } flex flex-col justify-center`}
                 custom={direction}
@@ -293,7 +342,7 @@ const api = axios.create({
                 animate="center"
                 exit="exit"
               >
-                {loading ? (
+                {loadingMeals ? (
                   <div className={`text-center py-8 ${textColor} opacity-70`}>급식 정보를 불러오는 중...</div>
                 ) : currentMenu.length > 0 ? (
                   <div className="space-y-2.5 text-center flex flex-col mt-4">
@@ -301,9 +350,7 @@ const api = axios.create({
                       <p
                         key={i}
                         className={`text-lg font-large tracking-wide ${
-                          isBookmarked(item)
-                            ? 'text-[#5B9FFF] font-bold'
-                            : textColor
+                          isBookmarked(item) ? 'text-[#5B9FFF] font-bold' : textColor
                         }`}
                       >
                         {item}
@@ -320,11 +367,60 @@ const api = axios.create({
           </div>
         </div>
 
+        <div className="flex items-center justify-center mt-6">
+          <div className={`w-[80%] bg-[#000000]/40 backdrop-blur-md rounded-3xl p-6 border ${
+            settings.highContrastMode ? 'border-white/20' : 'border-white/10'
+          }`}>
+            <div className="flex items-center justify-between mb-4">
+              <div className={`${textColor} font-medium`}>학년</div>
+              <select
+                value={settings.grade}
+                onChange={(e) => setSettings(prev => ({ ...prev, grade: e.target.value }))}
+                className="rounded px-2 py-1 bg-transparent border border-white/10"
+              >
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+              </select>
+              <div className={`${textColor} font-medium ml-4`}>반</div>
+              <select
+                value={settings.className}
+                onChange={(e) => setSettings(prev => ({ ...prev, className: e.target.value }))}
+                className="rounded px-2 py-1 bg-transparent border border-white/10"
+              >
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+                <option value="4">4</option>
+                <option value="5">5</option>
+              </select>
+            </div>
+
+            <div>
+              <h3 className={`${textColor} font-semibold mb-3`}>시간표</h3>
+              {loadingTimetable ? (
+                <div className={`${textColor} opacity-70 text-sm`}>시간표 정보를 불러오는 중...</div>
+              ) : timetable.length > 0 ? (
+                <div className="space-y-2">
+                  {timetable.map((subj, idx) => (
+                    <div key={idx} className="flex items-center justify-between">
+                      <div className={`${textColor} text-sm`}>{idx + 1}교시</div>
+                      <div className={`${textColor} text-sm`}>{subj || '-'}</div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className={`${textColor} opacity-50 text-sm`}>해당일 시간표 정보가 없습니다</div>
+              )}
+            </div>
+          </div>
+        </div>
+
         <div className="fixed bottom-28 left-4 text-xs text-white/40">
           <div>북마크: {bookmarks.length}개</div>
           <div>다크모드: {settings.darkMode ? 'ON' : 'OFF'}</div>
           <div>고대비: {settings.highContrastMode ? 'ON' : 'OFF'}</div>
-          <div>시간표시: {settings.timeDisplay ? 'OFF' : 'ON'}</div>
+          <div>시간표 표시: {settings.timeDisplay ? 'ON' : 'OFF'}</div>
         </div>
       </div>
 
