@@ -18,6 +18,12 @@ interface MealData {
   dinner: string[]
 }
 
+interface MealCalories {
+  breakfast: string
+  lunch: string
+  dinner: string
+}
+
 interface Settings {
   darkMode: boolean
   preferredMenuAlert: boolean
@@ -36,8 +42,14 @@ axios.defaults.headers.common["Content-Type"] = "application/json"
 export function MealScreen({ onNavigate }: MealScreenProps) {
   const [showDateModal, setShowDateModal] = useState(false)
   const [currentDate, setCurrentDate] = useState(new Date())
-  const [selectedMeal, setSelectedMeal] = useState<'breakfast' | 'lunch' | 'dinner'>('lunch')
+  const [selectedMeal, setSelectedMeal] = useState<'breakfast' | 'lunch' | 'dinner'>(() => {
+    const hour = new Date().getHours()
+    if (hour < 8) return 'breakfast'
+    if (hour < 13) return 'lunch'
+    return 'dinner'
+  })
   const [mealData, setMealData] = useState<MealData>({ breakfast: [], lunch: [], dinner: [] })
+  const [mealCalories, setMealCalories] = useState<MealCalories>({ breakfast: '', lunch: '', dinner: '' })
   const [loadingMeals, setLoadingMeals] = useState(true)
   const [loadingTimetable, setLoadingTimetable] = useState(true)
   const [touchStart, setTouchStart] = useState(0)
@@ -121,6 +133,7 @@ export function MealScreen({ onNavigate }: MealScreenProps) {
 
         const raw = res.data
         const organized: MealData = { breakfast: [], lunch: [], dinner: [] }
+        const calories: MealCalories = { breakfast: '', lunch: '', dinner: '' }
 
         if (raw && raw.mealServiceDietInfo && Array.isArray(raw.mealServiceDietInfo)) {
           const body = raw.mealServiceDietInfo[1]
@@ -132,16 +145,27 @@ export function MealScreen({ onNavigate }: MealScreenProps) {
                 .map((s: string) => s.replace(/\d+\./g, '').replace(/\([^)]*\)/g, '').trim())
                 .filter((t: string) => t)
               const category = (meal.MMEAL_SC_NM || "").toLowerCase()
-              if (category.includes('조식') || category.includes('breakfast')) organized.breakfast = dish
-              else if (category.includes('중식') || category.includes('lunch')) organized.lunch = dish
-              else if (category.includes('석식') || category.includes('dinner')) organized.dinner = dish
+              const cal = meal.CAL_INFO || ''
+              
+              if (category.includes('조식') || category.includes('breakfast')) {
+                organized.breakfast = dish
+                calories.breakfast = cal
+              } else if (category.includes('중식') || category.includes('lunch')) {
+                organized.lunch = dish
+                calories.lunch = cal
+              } else if (category.includes('석식') || category.includes('dinner')) {
+                organized.dinner = dish
+                calories.dinner = cal
+              }
             })
           }
         }
 
         setMealData(organized)
+        setMealCalories(calories)
       } catch {
         setMealData({ breakfast: [], lunch: [], dinner: [] })
+        setMealCalories({ breakfast: '', lunch: '', dinner: '' })
       } finally {
         setLoadingMeals(false)
       }
@@ -254,6 +278,7 @@ export function MealScreen({ onNavigate }: MealScreenProps) {
   }
 
   const currentMenu = mealData ? mealData[selectedMeal] || [] : []
+  const currentCalories = mealCalories[selectedMeal]
 
   const isBookmarked = (item: string) => {
     return bookmarks.some(bookmark => {
@@ -342,10 +367,21 @@ export function MealScreen({ onNavigate }: MealScreenProps) {
                 animate="center"
                 exit="exit"
               >
+                <div className="flex items-center justify-between mb-4 px-2">
+                  <div className={`text-2xl font-bold ${textColor}`}>
+                    {mealNames[selectedMeal]}
+                  </div>
+                  {currentCalories && (
+                    <div className={`text-sm ${textColor} opacity-70`}>
+                      {currentCalories}
+                    </div>
+                  )}
+                </div>
+
                 {loadingMeals ? (
                   <div className={`text-center py-8 ${textColor} opacity-70`}>급식 정보를 불러오는 중...</div>
                 ) : currentMenu.length > 0 ? (
-                  <div className="space-y-2.5 text-center flex flex-col mt-4">
+                  <div className="space-y-2.5 text-center flex flex-col">
                     {currentMenu.map((item, i) => (
                       <p
                         key={i}
