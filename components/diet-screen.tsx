@@ -205,7 +205,6 @@ export function DietScreen({ onNavigate }: DietScreenProps) {
                 min="0"
                 max="100"
               />
-              <span className="absolute right-4 top-1/2 -translate-y-1/2 text-white text-lg">%</span>
             </div>
             <Button 
               onClick={handleCalculate}

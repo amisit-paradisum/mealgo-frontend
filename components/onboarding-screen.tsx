@@ -22,9 +22,9 @@ export function OnboardingScreen({ onNext }: OnboardingScreenProps) {
             value={school}
             onChange={(e) => setSchool(e.target.value)}
             placeholder="학교이름을 검색해주세요"
-            className="w-full h-[66px] text-[14px] bg-black border-1 border-white rounded-[8px] text-white placeholder:text-white"
+            className="w-full h-[60px] text-[14px] bg-black border-1 rounded-[8px] text-white placeholder:text-white"
           />
-          <img src="/icons/MdSearch.svg" alt="검색 아이콘" className="absolute right-4 top-1/2 -translate-y-1/2 text-white w-[40px] h-[40px]" />
+          <img src="/icons/MdSearch.svg" alt="검색 아이콘" className="absolute right-4 top-1/2 -translate-y-1/2 text-white w-[30px] h-[30px]" />
         </div>
       </div>
       <div className="flex-1 flex flex-col items-center justify-center opacity-[0.24]">
