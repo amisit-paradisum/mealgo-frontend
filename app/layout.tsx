@@ -1,7 +1,9 @@
 import type React from "react"
 import type { Metadata } from "next"
 import { Analytics } from "@vercel/analytics/next"
+import { GoogleOAuthProvider } from "@react-oauth/google"
 import "./globals.css"
+import { GoogleAuthWrapper } from "@/components/GoogleAuthWrapper"
 
 export const metadata: Metadata = {
   title: "mealgo - 통합로그인",
@@ -10,15 +12,12 @@ export const metadata: Metadata = {
   manifest: "/manifest.json",
 }
 
-export default function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode
-}>) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="ko">
       <body className="font-pretendard antialiased">
-        {children}
+        <GoogleAuthWrapper>{children}</GoogleAuthWrapper>
+        <Analytics />
       </body>
     </html>
   )
