@@ -321,7 +321,7 @@ export function MealScreen({ onNavigate }: MealScreenProps) {
   }
 
   return (
-    <div className="flex flex-col min-h-screen overflow-hidden">
+    <div className="flex flex-col min-h-screen">
       <div className={`flex-1 pt-5 pb-24 ${bgGradient} relative flex flex-col`}>
         <div className="flex justify-end mb-4">
           <div className="flex">
@@ -361,53 +361,53 @@ export function MealScreen({ onNavigate }: MealScreenProps) {
           <div className="absolute right-0 top-0 bottom-0 w-[15%] z-10 cursor-pointer" onClick={handleNextMeal} />
 
           <div className="relative font-bold w-[75%] min-h-[350px] h-[400px] rounded-3xl">
-            <div className={`${cardBg} bg-[#0e0f2b] rounded-3xl border flex flex-col justify-start overflow-hidden border-white/20 shadow-[0_0_30px_#3f2b96] h-full`}>
-              <div className="flex items-center justify-between p-5 px-7 border-b border-white/10">
-                <div className={`text-2xl font-bold ${mealColors[selectedMeal]}`}>
-                  {mealNames[selectedMeal]}
-                </div>
-                {currentCalories && (
-                  <div className={`text-sm ${textColor} opacity-70`}>
-                    {currentCalories}
+            <AnimatePresence custom={direction}>
+              <motion.div
+                key={selectedMeal + currentDate.toDateString()}
+                className={`absolute w-full h-full ${cardBg} bg-[#0e0f2b] rounded-3xl border flex flex-col justify-start overflow-hidden border-white/20 shadow-[0_0_30px_#3f2b96]`}
+                custom={direction}
+                variants={variants}
+                initial="enter"
+                animate="center"
+                exit="exit"
+              >
+                {/* 헤더 - 이제 애니메이션에 포함됨 */}
+                <div className="flex items-center justify-between p-5 px-7 border-b border-white/10">
+                  <div className={`text-2xl font-bold ${mealColors[selectedMeal]}`}>
+                    {mealNames[selectedMeal]}
                   </div>
-                )}
-              </div>
+                  {currentCalories && (
+                    <div className={`text-sm ${textColor} opacity-70`}>
+                      {currentCalories}
+                    </div>
+                  )}
+                </div>
 
-              <div className="relative flex-1 overflow-hidden">
-                <AnimatePresence custom={direction}>
-                  <motion.div
-                    key={selectedMeal + currentDate.toDateString()}
-                    className="absolute w-full h-full p-5 flex flex-col justify-center"
-                    custom={direction}
-                    variants={variants}
-                    initial="enter"
-                    animate="center"
-                    exit="exit"
-                  >
-                    {loadingMeals ? (
-                      <div className={`text-center py-8 ${textColor} opacity-70`}>급식 정보를 불러오는 중...</div>
-                    ) : currentMenu.length > 0 ? (
-                      <div className="space-y-2.5 text-center flex flex-col">
-                        {currentMenu.map((item, i) => (
-                          <p
-                            key={i}
-                            className={`text-lg font-large tracking-wide ${
-                              isBookmarked(item) ? 'text-[#5B9FFF] font-bold' : textColor
-                            }`}
-                          >
-                            {item}
-                          </p>
-                        ))}
-                      </div>
-                    ) : (
-                      <div className={`text-center py-20 ${textColor} opacity-50`}>
-                        {mealNames[selectedMeal]} 정보가 없습니다
-                      </div>
-                    )}
-                  </motion.div>
-                </AnimatePresence>
-              </div>
-            </div>
+                {/* 메뉴 내용 */}
+                <div className="flex-1 p-5 flex flex-col justify-center">
+                  {loadingMeals ? (
+                    <div className={`text-center py-8 ${textColor} opacity-70`}>급식 정보를 불러오는 중...</div>
+                  ) : currentMenu.length > 0 ? (
+                    <div className="space-y-2.5 text-center flex flex-col">
+                      {currentMenu.map((item, i) => (
+                        <p
+                          key={i}
+                          className={`text-lg font-large tracking-wide ${
+                            isBookmarked(item) ? 'text-[#5B9FFF] font-bold' : textColor
+                          }`}
+                        >
+                          {item}
+                        </p>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className={`text-center py-20 ${textColor} opacity-50`}>
+                      {mealNames[selectedMeal]} 정보가 없습니다
+                    </div>
+                  )}
+                </div>
+              </motion.div>
+            </AnimatePresence>
           </div>
         </div>
 
