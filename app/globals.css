@@ -156,5 +156,11 @@
     color: var(--foreground);
     min-height: 100vh;
     font-family: 'Pretendard', sans-serif;
+      ::-webkit-scrollbar {
+    display: none;
+  }
+  }
+    * {
+    scrollbar-width: none;
   }
 }

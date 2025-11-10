@@ -17,7 +17,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="ko">
-      <body className="font-pretendard antialiased">
+      <body className="font-pretendard antialiased overflow-auto scrollbar-hide">
         {children}
       </body>
     </html>

@@ -23,7 +23,7 @@ export function BottomNav({ currentTab, onNavigate }: BottomNavProps) {
 
         <Button
           variant="ghost"
-          className={`flex flex-col items-center gap-1 ${currentTab === "meal" ? "text-blue-400" : "text-white/50"}`}
+          className={`flex flex-col items-center gap-1 ${currentTab === "meal" ? "text-purple-400" : "text-white/50"}`}
           onClick={() => onNavigate("meal")}
         >
           <UtensilsCrossed className="w-6 h-6" />

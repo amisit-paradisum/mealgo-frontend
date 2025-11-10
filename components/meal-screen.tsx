@@ -83,6 +83,12 @@ export function MealScreen({ onNavigate }: MealScreenProps) {
     dinner: '석식',
   }
 
+  const mealColors = {
+    breakfast: 'text-blue-400',
+    lunch: 'text-green-400',
+    dinner: 'text-orange-400',
+  }
+
   useEffect(() => {
     const savedBookmarks = localStorage.getItem("mealBookmarks")
     if (savedBookmarks) {
@@ -315,7 +321,7 @@ export function MealScreen({ onNavigate }: MealScreenProps) {
   }
 
   return (
-    <div className="flex flex-col min-h-screen">
+    <div className="flex flex-col min-h-screen overflow-hidden">
       <div className={`flex-1 pt-5 pb-24 ${bgGradient} relative flex flex-col`}>
         <div className="flex justify-end mb-4">
           <div className="flex">
@@ -342,11 +348,11 @@ export function MealScreen({ onNavigate }: MealScreenProps) {
           <h1 className={`text-xl font-bold ${textColor} mb-1`}>
             {currentDate.getFullYear()}년 {currentDate.getMonth() + 1}월 {currentDate.getDate()}일
           </h1>
-          <p className={`${textColor} opacity-50 text-xs mb-10`}>대덕소프트웨어마이스터고등학교</p>
+          <p className={`${textColor} text-base mb-4 opacity-80 font-light`}>대덕소프트웨어마이스터고등학교</p>
         </div>
 
         <div
-          className="flex items-center justify-center overflow-hidden relative"
+          className="flex items-center justify-center relative"
           onTouchStart={handleTouchStart}
           onTouchMove={handleTouchMove}
           onTouchEnd={handleTouchEnd}
@@ -354,114 +360,111 @@ export function MealScreen({ onNavigate }: MealScreenProps) {
           <div className="absolute left-0 top-0 bottom-0 w-[15%] z-10 cursor-pointer" onClick={handlePrevMeal} />
           <div className="absolute right-0 top-0 bottom-0 w-[15%] z-10 cursor-pointer" onClick={handleNextMeal} />
 
-          <div className="relative font-bold w-[80%] h-[350px] rounded-3xl ">
-            <AnimatePresence custom={direction}>
-              <motion.div
-                key={selectedMeal + currentDate.toDateString()}
-                className={`absolute w-full h-full ${cardBg} bg-[#000000]/80 rounded-3xl p-5 border ${
-                  settings.highContrastMode ? 'border-white/20' : 'border-white/10'
-                } flex flex-col justify-center`}
-                custom={direction}
-                variants={variants}
-                initial="enter"
-                animate="center"
-                exit="exit"
-              >
-                <div className="flex items-center justify-between mb-4 px-2">
-                  <div className={`text-2xl font-bold ${textColor}`}>
-                    {mealNames[selectedMeal]}
-                  </div>
-                  {currentCalories && (
-                    <div className={`text-sm ${textColor} opacity-70`}>
-                      {currentCalories}
-                    </div>
-                  )}
+          <div className="relative font-bold w-[75%] min-h-[350px] h-[400px] rounded-3xl">
+            <div className={`${cardBg} bg-[#0e0f2b] rounded-3xl border flex flex-col justify-start overflow-hidden border-white/20 shadow-[0_0_30px_#3f2b96] h-full`}>
+              <div className="flex items-center justify-between p-5 px-7 border-b border-white/10">
+                <div className={`text-2xl font-bold ${mealColors[selectedMeal]}`}>
+                  {mealNames[selectedMeal]}
                 </div>
-
-                {loadingMeals ? (
-                  <div className={`text-center py-8 ${textColor} opacity-70`}>급식 정보를 불러오는 중...</div>
-                ) : currentMenu.length > 0 ? (
-                  <div className="space-y-2.5 text-center flex flex-col">
-                    {currentMenu.map((item, i) => (
-                      <p
-                        key={i}
-                        className={`text-lg font-large tracking-wide ${
-                          isBookmarked(item) ? 'text-[#5B9FFF] font-bold' : textColor
-                        }`}
-                      >
-                        {item}
-                      </p>
-                    ))}
-                  </div>
-                ) : (
-                  <div className={`text-center py-8 ${textColor} opacity-50`}>
-                    {mealNames[selectedMeal]} 정보가 없습니다
+                {currentCalories && (
+                  <div className={`text-sm ${textColor} opacity-70`}>
+                    {currentCalories}
                   </div>
                 )}
-              </motion.div>
-            </AnimatePresence>
+              </div>
+
+              <div className="relative flex-1 overflow-hidden">
+                <AnimatePresence custom={direction}>
+                  <motion.div
+                    key={selectedMeal + currentDate.toDateString()}
+                    className="absolute w-full h-full p-5 flex flex-col justify-center"
+                    custom={direction}
+                    variants={variants}
+                    initial="enter"
+                    animate="center"
+                    exit="exit"
+                  >
+                    {loadingMeals ? (
+                      <div className={`text-center py-8 ${textColor} opacity-70`}>급식 정보를 불러오는 중...</div>
+                    ) : currentMenu.length > 0 ? (
+                      <div className="space-y-2.5 text-center flex flex-col">
+                        {currentMenu.map((item, i) => (
+                          <p
+                            key={i}
+                            className={`text-lg font-large tracking-wide ${
+                              isBookmarked(item) ? 'text-[#5B9FFF] font-bold' : textColor
+                            }`}
+                          >
+                            {item}
+                          </p>
+                        ))}
+                      </div>
+                    ) : (
+                      <div className={`text-center py-20 ${textColor} opacity-50`}>
+                        {mealNames[selectedMeal]} 정보가 없습니다
+                      </div>
+                    )}
+                  </motion.div>
+                </AnimatePresence>
+              </div>
+            </div>
           </div>
         </div>
 
-        <div className="flex items-center justify-center mt-6">
-          <div className={`w-[80%] bg-[#000000]/40 backdrop-blur-md rounded-3xl p-6 border ${
+        <div
+          className={`w-[75%] max-w-md mx-auto mt-10 bg-[#0e0f2b] rounded-3xl p-8 border ${
             settings.highContrastMode ? 'border-white/20' : 'border-white/10'
-          }`}>
-            <div className="flex items-center justify-between mb-4">
-              <div className={`${textColor} font-medium`}>학년</div>
-              <select
-                value={settings.grade}
-                onChange={(e) => setSettings(prev => ({ ...prev, grade: e.target.value }))}
-                className="rounded px-2 py-1 bg-transparent border border-white/10"
-              >
-                <option value="1">1</option>
-                <option value="2">2</option>
-                <option value="3">3</option>
-              </select>
-              <div className={`${textColor} font-medium ml-4`}>반</div>
-              <select
-                value={settings.className}
-                onChange={(e) => setSettings(prev => ({ ...prev, className: e.target.value }))}
-                className="rounded px-2 py-1 bg-transparent border border-white/10"
-              >
-                <option value="1">1</option>
-                <option value="2">2</option>
-                <option value="3">3</option>
-                <option value="4">4</option>
-                <option value="5">5</option>
-              </select>
-            </div>
-
-            <div>
-              <h3 className={`${textColor} font-semibold mb-3`}>시간표</h3>
-              {loadingTimetable ? (
-                <div className={`${textColor} opacity-70 text-sm`}>시간표 정보를 불러오는 중...</div>
-              ) : timetable.length > 0 ? (
-                <div className="space-y-2">
-                  {timetable.map((subj, idx) => (
-                    <div key={idx} className="flex items-center justify-between">
-                      <div className={`${textColor} text-sm`}>{idx + 1}교시</div>
-                      <div className={`${textColor} text-sm`}>{subj || '-'}</div>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <div className={`${textColor} opacity-50 text-sm`}>해당일 시간표 정보가 없습니다</div>
-              )}
-            </div>
+          } shadow-[0_0_40px_#3f2b96]`}
+        >
+          <div className="flex items-center justify-center gap-4 mb-8 text-white/90">
+            <div className={`${textColor} font-medium text-lg`}>학년</div>
+            <select
+              value={settings.grade}
+              onChange={(e) => setSettings((prev) => ({ ...prev, grade: e.target.value }))}
+              className="rounded-lg px-3 py-1.5 bg-transparent border border-white/20 text-white/90 focus:outline-none"
+            >
+              <option value="1">1</option>
+              <option value="2">2</option>
+              <option value="3">3</option>
+            </select>
+            <div className={`${textColor} font-medium text-lg`}>반</div>
+            <select
+              value={settings.className}
+              onChange={(e) => setSettings((prev) => ({ ...prev, className: e.target.value }))}
+              className="rounded-lg px-3 py-1.5 bg-transparent border border-white/20 text-white/90 focus:outline-none"
+            >
+              <option value="1">1</option>
+              <option value="2">2</option>
+              <option value="3">3</option>
+              <option value="4">4</option>
+            </select>
           </div>
-        </div>
 
-        <div className="fixed bottom-28 left-4 text-xs text-white/40">
-          <div>북마크: {bookmarks.length}개</div>
-          <div>다크모드: {settings.darkMode ? 'ON' : 'OFF'}</div>
-          <div>고대비: {settings.highContrastMode ? 'ON' : 'OFF'}</div>
-          <div>시간표 표시: {settings.timeDisplay ? 'ON' : 'OFF'}</div>
+          <div>
+            {loadingTimetable ? (
+              <div className={`${textColor} opacity-70 text-lg text-center py-6`}>
+                시간표 정보를 불러오는 중...
+              </div>
+            ) : timetable.length > 0 ? (
+              <div className="space-y-6 text-left">
+                {timetable.map((subj, idx) => (
+                  <div
+                    key={idx}
+                    className={`${textColor} text-base sm:text-lg md:text-xl font-semibold tracking-wide`}
+                  >
+                    {idx + 1}교시 - {subj || '-'}
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className={`${textColor} opacity-50 text-lg text-center py-6`}>
+                해당일 시간표 정보가 없습니다
+              </div>
+            )}
+          </div>
         </div>
       </div>
-
       <BottomNav currentTab="meal" onNavigate={onNavigate} />
-      {showDateModal && <DateModal onClose={() => setShowDateModal(false)} />}
     </div>
   )
 }
