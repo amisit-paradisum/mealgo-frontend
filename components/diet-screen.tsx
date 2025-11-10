@@ -177,11 +177,11 @@ export function DietScreen({ onNavigate }: DietScreenProps) {
                   {Math.abs(percentDiff)}%
                 </p>
                 <p className={`${isLess ? 'text-blue-400' : 'text-red-400'} text-sm`}>
-                  <span className="font-semibold">{Math.abs(calorieDiff)}kcal</span> {isLess ? '줄어듦' : '늘어남'}
+                  <span className="font-semibold">{Math.abs(calorieDiff).toFixed(1)}kcal</span> {isLess ? '줄어듦' : '늘어남'}
                 </p>
-                <p className="text-white/50 text-xs mt-2">
-                  어제: {actualYesterdayCalorie}kcal → 오늘: {actualConsumedCalorie}kcal
-                </p>
+<p className="text-white/50 text-xs mt-2">
+  어제: {actualYesterdayCalorie.toFixed(1)}kcal → 오늘: {actualConsumedCalorie.toFixed(1)}kcal
+</p>
               </div>
               <div className="text-6xl">{emoji}</div>
             </div>
@@ -191,7 +191,7 @@ export function DietScreen({ onNavigate }: DietScreenProps) {
         <div className="bg-black/50 backdrop-blur-sm rounded-3xl p-6 border-2 border-white/20">
           <h4 className="text-purple-700  text-xl font-bold mb-2">칼로리 계산기</h4>
           <p className="text-white/60 text-sm mb-4">
-            오늘 급식 총 칼로리: <span className="font-bold text-white">{todayCalorie}kcal</span>
+          오늘 급식 총 칼로리: <span className="font-bold text-white">{todayCalorie.toFixed(1)}kcal</span>
           </p>
 
           <div className="flex gap-3 mb-4">
@@ -245,9 +245,9 @@ export function DietScreen({ onNavigate }: DietScreenProps) {
             </div>
           </div>
         )}
+      <BottomNav currentTab="diet" onNavigate={onNavigate} />
       </div>
 
-      <BottomNav currentTab="diet" onNavigate={onNavigate} />
 
       {showDeleteModal && <TagDeleteModal onClose={() => setShowDeleteModal(false)} />}
     </div>
