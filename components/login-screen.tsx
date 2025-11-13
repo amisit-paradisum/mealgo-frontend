@@ -46,7 +46,7 @@ export function LoginScreen({ onNext }: LoginScreenProps) {
       return
     }
 
-    const clientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID
+    const clientId = "825309889051-ct973jnbth44go6vuubolmh0vfg4hm61.apps.googleusercontent.com"
     
     if (!clientId) {
       console.error("❌ NEXT_PUBLIC_GOOGLE_CLIENT_ID 환경변수가 설정되지 않았습니다.")
