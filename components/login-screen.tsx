@@ -72,6 +72,8 @@ export function LoginScreen({ onNext }: LoginScreenProps) {
               { oauth: response.code },
               { withCredentials: false }
             )
+            // 로컬 저장이에요
+            localStorage.setItem("token", res.data.jwt);
             console.log(response.code)
             console.log("✅ === 서버 응답 성공 ===")
             console.log("  - Status:", res.status)
