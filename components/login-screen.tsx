@@ -151,7 +151,7 @@ export function LoginScreen({ onNext }: LoginScreenProps) {
   return (
     <>
       <Script 
-        src="https://accounts.google.com/gsi/client" 
+        src="https://accounts.google.com/gsi/client"  
         strategy="beforeInteractive"
         onLoad={handleScriptLoad}
         onError={handleScriptError}
