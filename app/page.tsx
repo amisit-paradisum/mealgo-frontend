@@ -15,9 +15,9 @@ export default function Home() {
 
   return (
     <div className="min-h-screen">
+      {currentScreen === "meal" && <MealScreen onNavigate={setCurrentScreen} />}
       {currentScreen === "login" && <LoginScreen onNext={() => setCurrentScreen("meal")} />}
       {currentScreen === "onboarding" && <OnboardingScreen onNext={() => setCurrentScreen("onboardingGrade")} />}
-      {currentScreen === "meal" && <MealScreen onNavigate={setCurrentScreen} />}
       {currentScreen === "diet" && <DietScreen onNavigate={setCurrentScreen} />}
       {currentScreen === "bookmark" && <BookmarkScreen onNavigate={setCurrentScreen} />}
       {currentScreen === "settings" && <SettingsScreen onBack={() => setCurrentScreen("meal")} />}
