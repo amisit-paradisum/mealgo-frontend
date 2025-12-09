@@ -11,7 +11,7 @@ import { SettingsScreen } from "@/components/settings-screen"
 export default function Home() {
   const [currentScreen, setCurrentScreen] = useState<
     "login" | "onboarding" | "onboardingGrade" | "meal" | "diet" | "bookmark" | "settings"
-  >("login")
+  >("meal")
 
   return (
     <div className="min-h-screen">
