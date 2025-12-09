@@ -7,7 +7,6 @@ import { MealScreen } from "@/components/meal-screen"
 import { DietScreen } from "@/components/diet-screen"
 import { BookmarkScreen } from "@/components/bookmark-screen"
 import { SettingsScreen } from "@/components/settings-screen"
-import { OnboardingGradeScreen } from "@/components/onboarding-grade-screen"
 
 export default function Home() {
   const [currentScreen, setCurrentScreen] = useState<
@@ -16,9 +15,8 @@ export default function Home() {
 
   return (
     <div className="min-h-screen">
-      {currentScreen === "login" && <LoginScreen onNext={() => setCurrentScreen("onboarding")} />}
+      {currentScreen === "login" && <LoginScreen onNext={() => setCurrentScreen("meal")} />}
       {currentScreen === "onboarding" && <OnboardingScreen onNext={() => setCurrentScreen("onboardingGrade")} />}
-      {currentScreen === "onboardingGrade" && <OnboardingGradeScreen onNext={() => setCurrentScreen("meal")} />}
       {currentScreen === "meal" && <MealScreen onNavigate={setCurrentScreen} />}
       {currentScreen === "diet" && <DietScreen onNavigate={setCurrentScreen} />}
       {currentScreen === "bookmark" && <BookmarkScreen onNavigate={setCurrentScreen} />}
