@@ -4,6 +4,7 @@ import { useState, useEffect } from "react"
 import { useSetRecoilState } from "recoil"
 import { accessTokenState } from "@/recoil/auth"
 import api from "@/lib/api/api"
+
 import { LoginScreen } from "@/components/login-screen"
 import { OnboardingScreen } from "@/components/onboarding-screen"
 import { MealScreen } from "@/components/meal-screen"
@@ -16,23 +17,37 @@ export default function Home() {
     "login" | "onboarding" | "onboardingGrade" | "meal" | "diet" | "bookmark" | "settings" | undefined
   >(undefined)
 
+  // ⬇️ 여기 빠져있었음!!
   const setAccessToken = useSetRecoilState(accessTokenState)
 
   useEffect(() => {
-    const initAuth = async () => {
+    const checkAuth = async () => {
+      const refresh = localStorage.getItem("refresh")
+
+      if (!refresh) {
+        setCurrentScreen("login")
+        return
+      }
+
       try {
-        const res = await api.post("/auth/refresh", {}, { withCredentials: true })
-        setAccessToken(res.data.accessToken)
+        const res = await api.get("/auth/signInWithRefresh")
+        const newToken = res.data.accessToken
+
+        if (newToken) setAccessToken(newToken)
+
         setCurrentScreen("meal")
-      } catch {
+      } catch (err: any) {
+        if (err?.response?.status === 401) {
+          localStorage.removeItem("refresh")
+        }
         setCurrentScreen("login")
       }
     }
 
-    initAuth()
-  }, [])
+    checkAuth()
+  }, [setAccessToken])
 
-  if (!currentScreen) return null // 초기 로딩 상태
+  if (!currentScreen) return null
 
   return (
     <div className="min-h-screen">

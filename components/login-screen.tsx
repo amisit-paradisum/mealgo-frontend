@@ -75,7 +75,7 @@ export function LoginScreen({ onNext }: LoginScreenProps) {
 
             // Recoil에 Access Token 저장yo
             setAccessToken(res.data.jwt);
-            localStorage.setItem("token", res.data.jwt);
+            localStorage.setItem("refresh", res.data.refreshToken);
             console.log("🔐 Access Token 저장 완료:", res.data.jwt);
 
             setIsLoading(false);
