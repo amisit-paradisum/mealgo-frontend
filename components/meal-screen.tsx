@@ -214,8 +214,8 @@ export function MealScreen({ onNavigate }: MealScreenProps) {
               const content = (r.ITRT_CNTNT || r.GSUBJECT_NM || "").trim()
               if (period) byPeriod[period] = content
             })
-            const maxPeriod = Math.max(...Object.keys(byPeriod).map(k => parseInt(k)).filter(n => !isNaN(n)), 8)
-            for (let p = 1; p <= (maxPeriod || 8); p++) {
+            const maxPeriod = Math.max(...Object.keys(byPeriod).map(k => parseInt(k)).filter(n => !isNaN(n)), 7)
+            for (let p = 1; p <= (maxPeriod || 7); p++) {
               list.push(byPeriod[String(p)] || "")
             }
           }
@@ -352,7 +352,7 @@ export function MealScreen({ onNavigate }: MealScreenProps) {
         </div>
 
         <div
-          className="flex items-center justify-center relative"
+          className="relative w-[75%] max-w-md mx-auto font-bold min-h-[400px] rounded-3xl"
           onTouchStart={handleTouchStart}
           onTouchMove={handleTouchMove}
           onTouchEnd={handleTouchEnd}
@@ -360,7 +360,7 @@ export function MealScreen({ onNavigate }: MealScreenProps) {
           <div className="absolute left-0 top-0 bottom-0 w-[15%] z-10 cursor-pointer" onClick={handlePrevMeal} />
           <div className="absolute right-0 top-0 bottom-0 w-[15%] z-10 cursor-pointer" onClick={handleNextMeal} />
 
-          <div className="relative font-bold w-[75%] min-h-[400px] rounded-3xl">
+          <div className={`absolute w-full h-full ${cardBg} rounded-3xl border flex flex-col justify-start `}>
             <AnimatePresence custom={direction}>
               <motion.div
                 key={selectedMeal + currentDate.toDateString()}
@@ -412,7 +412,7 @@ export function MealScreen({ onNavigate }: MealScreenProps) {
         </div>
 
         <div
-          className={`w-[75%] max-w-md mx-auto mt-10 bg-[#0e0f2b] rounded-3xl p-8 border ${
+          className={`min-h-[500px] w-[75%] max-w-md mx-auto mt-10 bg-[#0e0f2b] rounded-3xl p-8 border ${
             settings.highContrastMode ? 'border-white/20' : 'border-white/10'
           } shadow-[0_0_40px_#3f2b96]`}
         >
@@ -450,9 +450,11 @@ export function MealScreen({ onNavigate }: MealScreenProps) {
                 {timetable.map((subj, idx) => (
                   <div
                     key={idx}
-                    className={`${textColor} text-base sm:text-lg md:text-xl font-semibold tracking-wide`}
+                    className={`text-base sm:text-lg md:text-xl font-semibold tracking-wide ${
+                      subj ? textColor : 'text-gray-400'
+                    }`}
                   >
-                    {idx + 1}교시 - {subj || '-'}
+                    {idx + 1}교시 - {subj || ' 없음 -'}
                   </div>
                 ))}
               </div>
