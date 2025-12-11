@@ -11,6 +11,7 @@ import { MealScreen } from "@/components/meal-screen"
 import { DietScreen } from "@/components/diet-screen"
 import { BookmarkScreen } from "@/components/bookmark-screen"
 import { SettingsScreen } from "@/components/settings-screen"
+import axios from "axios"
 
 export default function Home() {
   const [currentScreen, setCurrentScreen] = useState<
@@ -29,11 +30,11 @@ export default function Home() {
       }
 
       try {
-        const res = await api.get("/auth/refresh", {
-          headers: {
-            refreshToken: refresh
-          }
-        });
+         const res = await api.get("/auth/refresh", {
+            headers: {
+              "refresh-token": refresh
+            }
+          })
 
         console.log(res)
         const newToken = res.data;
@@ -44,10 +45,11 @@ export default function Home() {
 
         setCurrentScreen("meal")
       } catch (err: any) {
-        console.error("끼야아악 인증 또 터짐ㅁ:", err.message);
+        
         if (err?.response?.status === 401) {
           localStorage.removeItem("refresh")
         }else{
+          console.error("끼야아악 인증 또 터짐ㅁ:", err.message);
           localStorage.removeItem("refresh")
         }
         setCurrentScreen("login")
