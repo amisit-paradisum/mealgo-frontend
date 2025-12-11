@@ -77,6 +77,7 @@ export function LoginScreen({ onNext }: LoginScreenProps) {
             setAccessToken(res.data.jwt);
             localStorage.setItem("refresh", res.data.refreshToken);
             console.log("🔐 Access Token 저장 완료:", res.data.jwt);
+            console.log("refresh", res.data.refreshToken)
 
             setIsLoading(false);
             onNext();

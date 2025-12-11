@@ -17,7 +17,6 @@ export default function Home() {
     "login" | "onboarding" | "onboardingGrade" | "meal" | "diet" | "bookmark" | "settings" | undefined
   >(undefined)
 
-  // ⬇️ 여기 빠져있었음!!
   const setAccessToken = useSetRecoilState(accessTokenState)
 
   useEffect(() => {
@@ -30,14 +29,25 @@ export default function Home() {
       }
 
       try {
-        const res = await api.get("/auth/signInWithRefresh")
-        const newToken = res.data.accessToken
+        const res = await api.get("/auth/refresh", {
+          headers: {
+            refreshToken: refresh
+          }
+        });
 
-        if (newToken) setAccessToken(newToken)
+        console.log(res)
+        const newToken = res.data;
+
+        if (newToken) {
+          setAccessToken(newToken)
+        }
 
         setCurrentScreen("meal")
       } catch (err: any) {
+        console.error("끼야아악 인증 또 터짐ㅁ:", err.message);
         if (err?.response?.status === 401) {
+          localStorage.removeItem("refresh")
+        }else{
           localStorage.removeItem("refresh")
         }
         setCurrentScreen("login")
