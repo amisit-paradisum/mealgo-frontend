@@ -49,6 +49,11 @@ export function SettingsScreen({ onBack }: SettingsScreenProps) {
     })
   }
 
+  const onLogout = () => {
+    localStorage.removeItem("refresh")
+    window.location.reload()
+  }
+
   return (
     <div className="flex flex-col min-h-screen px-6 pt-12 bg-[#140D2B]">
       <div className="flex items-center gap-4 mb-8">
@@ -75,6 +80,10 @@ export function SettingsScreen({ onBack }: SettingsScreenProps) {
           checked={settings.highContrastMode}
           onToggle={() => toggleSetting("highContrastMode")}
         />
+      </div>
+      <div className="flex-1" />
+      <div className="w-full flex justify-center mb-6">
+          <p>현재 mealgo 계정  <span onClick={onLogout} className="text-[#8479FF] cursor-pointer" >로그아웃</span> 하기</p>
       </div>
     </div>
   )
