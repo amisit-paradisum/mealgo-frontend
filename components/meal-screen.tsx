@@ -364,7 +364,7 @@ export function MealScreen({ onNavigate }: MealScreenProps) {
             <AnimatePresence custom={direction}>
               <motion.div
                 key={selectedMeal + currentDate.toDateString()}
-                className={`absolute w-full h-full ${cardBg} bg-[#0e0f2b] rounded-3xl border flex flex-col justify-start overflow-hidden border-white/20 shadow-[0_0_30px_#3f2b96]`}
+                className={`absolute w-full h-full ${cardBg} bg-[#0e0f2b] rounded-3xl border flex flex-col justify-start border-white/20 shadow-[0_0_30px_#3f2b96]`}
                 custom={direction}
                 variants={variants}
                 initial="enter"
