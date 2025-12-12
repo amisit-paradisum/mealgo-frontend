@@ -18,7 +18,7 @@ export function BottomNav({ currentTab, onNavigate }: BottomNavProps) {
   }
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 bg-[#0f0a1e] border-t border-white/10">
+    <div className="fixed bottom-0 left-0 right-0 bg-[#0f0a1e] border-t border-white/10 rounded-t-[20px] h-[80px] shadow-lg">
       <div className="flex items-center justify-around px-6 py-4 max-w-md mx-auto">
         <Button
           variant="ghost"

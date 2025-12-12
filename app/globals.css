@@ -150,6 +150,10 @@
     @apply border-border;
     @apply outline-ring/50;
   }
+  html {
+  background-color: var(--background);
+  @apply scroll-smooth;
+}
 
   body {
     background: linear-gradient(to bottom, #000000, #4325A5);
