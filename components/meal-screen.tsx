@@ -466,7 +466,9 @@ export function MealScreen({ onNavigate }: MealScreenProps) {
           </div>
         </div>
       </div>
-      <BottomNav currentTab="meal" onNavigate={onNavigate} />
+      <div className="fixed bottom-0 left-0 right-0 z-50">
+        <BottomNav currentTab="meal" onNavigate={onNavigate} />
+      </div>
     </div>
   )
 }
