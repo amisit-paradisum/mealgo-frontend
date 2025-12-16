@@ -320,6 +320,11 @@ export function MealScreen({ onNavigate }: MealScreenProps) {
     }),
   }
 
+  const goGoogleSearch = (keyword: string) => {
+  const url = `https://www.google.com/search?q=${encodeURIComponent(keyword)}`
+  window.open(url, "_blank")
+}
+
   return (
     <div className="flex flex-col min-h-screen">
       <div className={`flex-1 pt-5 pb-24 ${bgGradient} relative flex flex-col`}>
@@ -391,8 +396,9 @@ export function MealScreen({ onNavigate }: MealScreenProps) {
                     <div className="space-y-3.5 text-center flex flex-col">
                       {currentMenu.map((item, i) => (
                         <p
+                          onClick={() => goGoogleSearch(item)}
                           key={i}
-                          className={`text-xl font-large tracking-wide ${
+                          className={`text-xl font-large tracking-wide cursor-pointer ${
                             isBookmarked(item) ? 'text-[#5B9FFF] font-bold' : textColor
                           }`}
                         >
