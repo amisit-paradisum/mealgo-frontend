@@ -365,7 +365,7 @@ export function MealScreen({ onNavigate }: MealScreenProps) {
           <div className="absolute left-0 top-0 bottom-0 w-[15%] z-10 cursor-pointer" onClick={handlePrevMeal} />
           <div className="absolute right-0 top-0 bottom-0 w-[15%] z-10 cursor-pointer" onClick={handleNextMeal} />
 
-          <div className={`absolute w-full h-full ${cardBg} rounded-3xl border flex flex-col justify-start `}>
+          <div>
             <AnimatePresence custom={direction}>
               <motion.div
                 key={selectedMeal + currentDate.toDateString()}

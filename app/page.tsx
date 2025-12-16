@@ -11,12 +11,11 @@ import { MealScreen } from "@/components/meal-screen"
 import { DietScreen } from "@/components/diet-screen"
 import { BookmarkScreen } from "@/components/bookmark-screen"
 import { SettingsScreen } from "@/components/settings-screen"
-import axios from "axios"
 
 export default function Home() {
   const [currentScreen, setCurrentScreen] = useState<
-    "login" | "onboarding" | "onboardingGrade" | "meal" | "diet" | "bookmark" | "settings" | undefined
-  >(undefined)
+    "login" | "onboarding" | "onboardingGrade" | "meal" | "diet" | "bookmark" | "settings"
+  >("meal")
 
   const setAccessToken = useSetRecoilState(accessTokenState)
 
@@ -63,8 +62,8 @@ export default function Home() {
 
   return (
     <div className="min-h-screen">
-      {currentScreen === "login" && <LoginScreen onNext={() => setCurrentScreen("meal")} />}
       {currentScreen === "meal" && <MealScreen onNavigate={setCurrentScreen} />}
+      {currentScreen === "login" && <LoginScreen onNext={() => setCurrentScreen("meal")} />}
       {currentScreen === "onboarding" && <OnboardingScreen onNext={() => setCurrentScreen("onboardingGrade")} />}
       {currentScreen === "diet" && <DietScreen onNavigate={setCurrentScreen} />}
       {currentScreen === "bookmark" && <BookmarkScreen onNavigate={setCurrentScreen} />}
