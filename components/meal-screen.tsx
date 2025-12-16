@@ -320,6 +320,11 @@ export function MealScreen({ onNavigate }: MealScreenProps) {
     }),
   }
 
+  const goGoogleSearch = (keyword: string) => {
+  const url = `https://www.google.com/search?q=${encodeURIComponent(keyword)}`
+  window.open(url, "_blank")
+}
+
   return (
     <div className="flex flex-col min-h-screen">
       <div className={`flex-1 pt-5 pb-24 ${bgGradient} relative flex flex-col`}>
@@ -360,11 +365,11 @@ export function MealScreen({ onNavigate }: MealScreenProps) {
           <div className="absolute left-0 top-0 bottom-0 w-[15%] z-10 cursor-pointer" onClick={handlePrevMeal} />
           <div className="absolute right-0 top-0 bottom-0 w-[15%] z-10 cursor-pointer" onClick={handleNextMeal} />
 
-          <div className={`absolute w-full h-full ${cardBg} rounded-3xl border flex flex-col justify-start `}>
+          <div>
             <AnimatePresence custom={direction}>
               <motion.div
                 key={selectedMeal + currentDate.toDateString()}
-                className={`absolute w-full h-full ${cardBg} bg-[#0e0f2b] rounded-3xl border flex flex-col justify-start overflow-hidden border-white/20 shadow-[0_0_30px_#3f2b96]`}
+                className={`absolute w-full h-full ${cardBg} bg-[#0e0f2b] rounded-3xl border flex flex-col justify-start border-white/20 shadow-[0_0_30px_#3f2b96]`}
                 custom={direction}
                 variants={variants}
                 initial="enter"
@@ -391,8 +396,9 @@ export function MealScreen({ onNavigate }: MealScreenProps) {
                     <div className="space-y-3.5 text-center flex flex-col">
                       {currentMenu.map((item, i) => (
                         <p
+                          onClick={() => goGoogleSearch(item)}
                           key={i}
-                          className={`text-xl font-large tracking-wide ${
+                          className={`text-xl font-large tracking-wide cursor-pointer ${
                             isBookmarked(item) ? 'text-[#5B9FFF] font-bold' : textColor
                           }`}
                         >
