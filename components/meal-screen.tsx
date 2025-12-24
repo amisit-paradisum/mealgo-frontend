@@ -1,5 +1,4 @@
 "use client"
-
 import { useState, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { Button } from "@/components/ui/button"
@@ -39,6 +38,15 @@ const SD_SCHUL_CODE = '7430310'
 
 axios.defaults.headers.common["Content-Type"] = "application/json"
 
+const DEFAULT_SETTINGS: Settings = {
+  darkMode: true,
+  preferredMenuAlert: true,
+  timeDisplay: false,
+  highContrastMode: true,
+  grade: "1",
+  className: "1"
+}
+
 export function MealScreen({ onNavigate }: MealScreenProps) {
   const [showDateModal, setShowDateModal] = useState(false)
   const [currentDate, setCurrentDate] = useState(new Date())
@@ -48,34 +56,25 @@ export function MealScreen({ onNavigate }: MealScreenProps) {
     if (hour < 13) return 'lunch'
     return 'dinner'
   })
-  const [mealData, setMealData] = useState<MealData>({ breakfast: [], lunch: [], dinner: [] })
-  const [mealCalories, setMealCalories] = useState<MealCalories>({ breakfast: '', lunch: '', dinner: '' })
+  const [mealData, setMealData] = useState<MealData>({
+    breakfast: [],
+    lunch: [],
+    dinner: []
+  })
+  const [mealCalories, setMealCalories] = useState<MealCalories>({
+    breakfast: '',
+    lunch: '',
+    dinner: ''
+  })
   const [loadingMeals, setLoadingMeals] = useState(true)
   const [loadingTimetable, setLoadingTimetable] = useState(true)
   const [touchStart, setTouchStart] = useState(0)
   const [touchEnd, setTouchEnd] = useState(0)
   const [direction, setDirection] = useState(0)
-  const [bookmarks, setBookmarks] = useState<string[]>([])
-  const [settings, setSettings] = useState<Settings>(() => {
-    const raw = localStorage.getItem("mealAppSettings")
-    if (raw) {
-      try {
-        const parsed = JSON.parse(raw)
-        return {
-          darkMode: parsed.darkMode ?? true,
-          preferredMenuAlert: parsed.preferredMenuAlert ?? true,
-          timeDisplay: parsed.timeDisplay ?? false,
-          highContrastMode: parsed.highContrastMode ?? true,
-          grade: parsed.grade ?? "1",
-          className: parsed.className ?? "1",
-        }
-      } catch {
-        return { darkMode: true, preferredMenuAlert: true, timeDisplay: false, highContrastMode: true, grade: "1", className: "1" }
-      }
-    }
-    return { darkMode: true, preferredMenuAlert: true, timeDisplay: false, highContrastMode: true, grade: "1", className: "1" }
-  })
-  const [timetable, setTimetable] = useState<string[]>([])
+  const [bookmarks, setBookmarks] = useState<any[]>([])
+  const [settings, setSettings] = useState<Settings>(DEFAULT_SETTINGS)
+  const [timetable, setTimetable] = useState<any[]>([])
+  const [isClient, setIsClient] = useState(false)
 
   const mealNames = {
     breakfast: '조식',
@@ -89,34 +88,91 @@ export function MealScreen({ onNavigate }: MealScreenProps) {
     dinner: 'text-orange-400',
   }
 
+  // 클라이언트 사이드에서만 실행되도록 보장
   useEffect(() => {
-    const savedBookmarks = localStorage.getItem("mealBookmarks")
-    if (savedBookmarks) {
+    setIsClient(true)
+  }, [])
+
+  // localStorage에서 설정 로드
+  useEffect(() => {
+    if (!isClient) return
+
+    const loadSettings = () => {
       try {
-        setBookmarks(JSON.parse(savedBookmarks))
-      } catch {}
+        const savedSettings = localStorage.getItem("mealAppSettings")
+        if (savedSettings) {
+          const parsed = JSON.parse(savedSettings)
+          setSettings({
+            darkMode: parsed.darkMode ?? DEFAULT_SETTINGS.darkMode,
+            preferredMenuAlert: parsed.preferredMenuAlert ?? DEFAULT_SETTINGS.preferredMenuAlert,
+            timeDisplay: parsed.timeDisplay ?? DEFAULT_SETTINGS.timeDisplay,
+            highContrastMode: parsed.highContrastMode ?? DEFAULT_SETTINGS.highContrastMode,
+            grade: parsed.grade ?? DEFAULT_SETTINGS.grade,
+            className: parsed.className ?? DEFAULT_SETTINGS.className,
+          })
+        }
+      } catch (error) {
+        console.error("Failed to load settings:", error)
+        setSettings(DEFAULT_SETTINGS)
+      }
     }
+
+    loadSettings()
+  }, [isClient])
+
+  // localStorage에서 북마크 로드
+  useEffect(() => {
+    if (!isClient) return
+
+    const loadBookmarks = () => {
+      try {
+        const savedBookmarks = localStorage.getItem("mealBookmarks")
+        if (savedBookmarks) {
+          setBookmarks(JSON.parse(savedBookmarks))
+        }
+      } catch (error) {
+        console.error("Failed to load bookmarks:", error)
+      }
+    }
+
+    loadBookmarks()
+  }, [isClient])
+
+  // storage 이벤트 리스너 등록
+  useEffect(() => {
+    if (!isClient) return
 
     const handleStorageChange = (e: StorageEvent) => {
       if (e.key === "mealAppSettings" && e.newValue) {
         try {
           setSettings(JSON.parse(e.newValue))
-        } catch {}
+        } catch (error) {
+          console.error("Failed to parse settings from storage event:", error)
+        }
       }
       if (e.key === "mealBookmarks" && e.newValue) {
         try {
           setBookmarks(JSON.parse(e.newValue))
-        } catch {}
+        } catch (error) {
+          console.error("Failed to parse bookmarks from storage event:", error)
+        }
       }
     }
 
     window.addEventListener("storage", handleStorageChange)
     return () => window.removeEventListener("storage", handleStorageChange)
-  }, [])
+  }, [isClient])
 
+  // 설정 저장
   useEffect(() => {
-    localStorage.setItem("mealAppSettings", JSON.stringify(settings))
-  }, [settings])
+    if (!isClient) return
+
+    try {
+      localStorage.setItem("mealAppSettings", JSON.stringify(settings))
+    } catch (error) {
+      console.error("Failed to save settings:", error)
+    }
+  }, [settings, isClient])
 
   useEffect(() => {
     const fetchMealData = async () => {
@@ -365,7 +421,7 @@ export function MealScreen({ onNavigate }: MealScreenProps) {
           <div className="absolute left-0 top-0 bottom-0 w-[15%] z-10 cursor-pointer" onClick={handlePrevMeal} />
           <div className="absolute right-0 top-0 bottom-0 w-[15%] z-10 cursor-pointer" onClick={handleNextMeal} />
 
-          <div>
+          <div className={`absolute w-full h-full ${cardBg} rounded-3xl border flex flex-col justify-start `}>
             <AnimatePresence custom={direction}>
               <motion.div
                 key={selectedMeal + currentDate.toDateString()}
@@ -477,4 +533,4 @@ export function MealScreen({ onNavigate }: MealScreenProps) {
       </div>
     </div>
   )
-}
+} 
