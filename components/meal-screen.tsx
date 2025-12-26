@@ -162,6 +162,7 @@ export function MealScreen({ onNavigate }: MealScreenProps) {
     return () => window.removeEventListener("storage", handleStorageChange)
   }, [isClient])
 
+  // localStorage에 설정 저장
   useEffect(() => {
     if (!isClient) return
 
@@ -348,11 +349,46 @@ export function MealScreen({ onNavigate }: MealScreenProps) {
     })
   }
 
+  // 다크모드에 따른 스타일 변수
+  // 고대비는 나중에 디자인 나오면 수정하세요
   const bgGradient = settings.darkMode
     ? "bg-gradient-to-b from-[#000000] to-[#4325A5]"
-    : "bg-gradient-to-b from-[#f0f0f0] to-[#d0d0ff]"
-  const textColor = settings.highContrastMode ? "text-white" : "text-gray-200"
-  const cardBg = settings.highContrastMode ? "bg-[#1a1a2e]/30" : "bg-[#2a2a3e]/30"
+    : "bg-gradient-to-b from-[#FFFFFF] to-[#8A6FE3]"
+  
+  const iconColor = settings.darkMode
+    ? (settings.highContrastMode ? "text-white hover:bg-white/10" : "text-white hover:bg-white/10")
+    : (settings.highContrastMode ? "text-[#888888] hover:text-[#888888] hover:bg-black/10" : "text-[#888888] hover:text-[#888888] hover:bg-black/10")
+
+  const titleTextColor = settings.darkMode
+    ? (settings.highContrastMode ? "text-white" : "text-white")
+    : (settings.highContrastMode ? "text-[#3C2887]" : "text-[#3C2887]")
+  
+  const textColor = settings.darkMode
+    ? (settings.highContrastMode ? "text-white" : "text-white")
+    : (settings.highContrastMode ? "text-black" : "text-black")
+  const cardBg = settings.darkMode
+    ? (settings.highContrastMode ? "bg-[#1a1a2e]/30" : "bg-[#2a2a3e]/30")
+    : "bg-white/80"
+  
+  const cardStyle = settings.darkMode
+    ? "bg-[#0e0f2b] border-white/20 shadow-[0_0_30px_#3f2b96]"
+    : "bg-white border-gray-300 shadow-xl"
+  
+  const timetableCardStyle = settings.darkMode
+    ? "bg-[#0e0f2b]"
+    : "bg-white"
+  
+  const timetableBorderStyle = settings.darkMode
+    ? (settings.highContrastMode ? 'border-white/20' : 'border-white/10')
+    : 'border-gray-300'
+  
+  const timetableShadowStyle = settings.darkMode
+    ? 'shadow-[0_0_40px_#3f2b96]'
+    : 'shadow-xl'
+  
+  const selectStyle = settings.darkMode
+    ? 'bg-transparent border-white/20 text-white/90'
+    : 'bg-white border-gray-300 text-gray-800'
 
   const variants = {
     enter: (dir: number) => ({
@@ -375,27 +411,27 @@ export function MealScreen({ onNavigate }: MealScreenProps) {
   }
 
   const goGoogleSearch = (keyword: string) => {
-  const url = `https://www.google.com/search?q=${encodeURIComponent(keyword)}`
-  window.open(url, "_blank")
-}
+    const url = `https://www.google.com/search?q=${encodeURIComponent(keyword)}`
+    window.open(url, "_blank")
+  }
 
   return (
     <div className="flex flex-col min-h-screen">
       <div className={`flex-1 pt-5 pb-24 ${bgGradient} relative flex flex-col`}>
         <div className="flex justify-end mb-6">
           <div className="flex">
-          <Button
-            variant="ghost"
-            size="icon"
-            className={`${textColor} hover:bg-white/10 w-12 h-12`}
-            onClick={() => onNavigate("bookmark")}
-          >
-            <Bookmark className="w-5.5! h-5.5!" />
-          </Button>
             <Button
               variant="ghost"
               size="icon"
-              className={`${textColor} hover:bg-white/10 w-12 h-12`}
+              className={`${iconColor} w-12 h-12`}
+              onClick={() => onNavigate("bookmark")}
+            >
+              <Bookmark className="w-5.5! h-5.5!" />
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              className={`${iconColor} w-12 h-12`}
               onClick={() => onNavigate("settings")}
             >
               <MoreVertical className="w-6! h-6!" />
@@ -404,10 +440,10 @@ export function MealScreen({ onNavigate }: MealScreenProps) {
         </div>
 
         <div className="text-center mb-2">
-          <h1 className={`text-xl font-bold ${textColor} mb-1`}>
+          <h1 className={`text-xl font-bold ${titleTextColor} mb-1`}>
             {currentDate.getFullYear()}년 {currentDate.getMonth() + 1}월 {currentDate.getDate()}일
           </h1>
-          <p className={`${textColor} text-base mb-4 opacity-80 font-light`}>대덕소프트웨어마이스터고등학교</p>
+          <p className={`${titleTextColor} text-base mb-4 opacity-80 font-light`}>대덕소프트웨어마이스터고등학교</p>
         </div>
 
         <div
@@ -423,15 +459,15 @@ export function MealScreen({ onNavigate }: MealScreenProps) {
             <AnimatePresence custom={direction}>
               <motion.div
                 key={selectedMeal + currentDate.toDateString()}
-                className={`absolute w-full h-full ${cardBg} bg-[#0e0f2b] rounded-3xl border flex flex-col justify-start border-white/20 shadow-[0_0_30px_#3f2b96]`}
+                className={`absolute w-full h-full ${cardBg} ${cardStyle} rounded-3xl border flex flex-col justify-start`}
                 custom={direction}
                 variants={variants}
                 initial="enter"
                 animate="center"
                 exit="exit"
               >
-                {/* 헤더 - 이제 애니메이션에 포함됨 */}
-                <div className="flex items-center justify-between p-4 px-7 ">
+                {/* 헤더 */}
+                <div className="flex items-center justify-between p-4 px-7">
                   <div className={`text-2xl font-bold ${mealColors[selectedMeal]}`}>
                     {mealNames[selectedMeal]}
                   </div>
@@ -453,7 +489,9 @@ export function MealScreen({ onNavigate }: MealScreenProps) {
                           onClick={() => goGoogleSearch(item)}
                           key={i}
                           className={`text-xl font-large tracking-wide cursor-pointer ${
-                            isBookmarked(item) ? 'text-[#5B9FFF] font-bold' : textColor
+                            isBookmarked(item) 
+                              ? 'text-[#5B9FFF] font-bold' 
+                              : textColor
                           }`}
                         >
                           {item}
@@ -472,26 +510,24 @@ export function MealScreen({ onNavigate }: MealScreenProps) {
         </div>
 
         <div
-          className={`min-h-[500px] w-[75%] max-w-md mx-auto mt-10 bg-[#0e0f2b] rounded-3xl p-8 border ${
-            settings.highContrastMode ? 'border-white/20' : 'border-white/10'
-          } shadow-[0_0_40px_#3f2b96]`}
+          className={`min-h-[500px] w-[75%] max-w-md mx-auto mt-10 ${timetableCardStyle} rounded-3xl p-8 border ${timetableBorderStyle} ${timetableShadowStyle}`}
         >
-          <div className="flex items-center justify-center gap-4 mb-8 text-white/90">
-            <div className={`${textColor} font-medium text-lg`}>학년</div>
+          <div className="flex items-center justify-center gap-4 mb-8">
+            <div className={`${titleTextColor} font-medium text-lg`}>학년</div>
             <select
               value={settings.grade}
               onChange={(e) => setSettings((prev) => ({ ...prev, grade: e.target.value }))}
-              className="rounded-lg px-4 py-1.5 bg-transparent border border-white/20 text-white/90 focus:outline-none"
+              className={`rounded-lg px-4 py-1.5 ${selectStyle} border focus:outline-none`}
             >
               <option value="1">1</option>
               <option value="2">2</option>
               <option value="3">3</option>
             </select>
-            <div className={`${textColor} font-medium text-lg`}>반</div>
+            <div className={`${titleTextColor} font-medium text-lg`}>반</div>
             <select
               value={settings.className}
               onChange={(e) => setSettings((prev) => ({ ...prev, className: e.target.value }))}
-              className="rounded-lg px-4 py-1.5 bg-transparent border border-white/20 text-white/90 focus:outline-none"
+              className={`rounded-lg px-4 py-1.5 ${selectStyle} border focus:outline-none`}
             >
               <option value="1">1</option>
               <option value="2">2</option>
@@ -531,4 +567,4 @@ export function MealScreen({ onNavigate }: MealScreenProps) {
       </div>
     </div>
   )
-} 
+}
