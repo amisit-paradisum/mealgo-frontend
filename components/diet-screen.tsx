@@ -16,6 +16,24 @@ interface CalorieData {
   percentage: number
 }
 
+interface Settings {
+  darkMode: boolean
+  preferredMenuAlert: boolean
+  timeDisplay: boolean
+  highContrastMode: boolean
+  grade: string
+  className: string
+}
+
+const DEFAULT_SETTINGS: Settings = {
+  darkMode: true,
+  preferredMenuAlert: true,
+  timeDisplay: false,
+  highContrastMode: true,
+  grade: "1",
+  className: "1"
+}
+
 export function DietScreen({ onNavigate }: DietScreenProps) {
   const [percentage, setPercentage] = useState("100")
   const [note, setNote] = useState("")
@@ -25,6 +43,8 @@ export function DietScreen({ onNavigate }: DietScreenProps) {
   const [loading, setLoading] = useState(true)
   const [consumedPercentage, setConsumedPercentage] = useState(100)
   const [calorieHistory, setCalorieHistory] = useState<CalorieData[]>([])
+  const [settings, setSettings] = useState<Settings>(DEFAULT_SETTINGS)
+  const [isClient, setIsClient] = useState(false)
 
   const API_KEY = 'fd185d8332d34309a4d21107f1927ffe'
   const ATPT_OFCDC_SC_CODE = 'G10'
@@ -45,6 +65,55 @@ export function DietScreen({ onNavigate }: DietScreenProps) {
   const formatDisplayDate = (date: Date) => {
     return `${date.getMonth() + 1}월 ${date.getDate()}일`
   }
+
+  useEffect(() => {
+    setIsClient(true)
+  }, [])
+
+  // localStorage에서 설정 로드
+  useEffect(() => {
+    if (!isClient) return
+
+    const loadSettings = () => {
+      try {
+        const savedSettings = localStorage.getItem("mealAppSettings")
+        if (savedSettings) {
+          const parsed = JSON.parse(savedSettings)
+          setSettings({
+            darkMode: parsed.darkMode ?? DEFAULT_SETTINGS.darkMode,
+            preferredMenuAlert: parsed.preferredMenuAlert ?? DEFAULT_SETTINGS.preferredMenuAlert,
+            timeDisplay: parsed.timeDisplay ?? DEFAULT_SETTINGS.timeDisplay,
+            highContrastMode: parsed.highContrastMode ?? DEFAULT_SETTINGS.highContrastMode,
+            grade: parsed.grade ?? DEFAULT_SETTINGS.grade,
+            className: parsed.className ?? DEFAULT_SETTINGS.className,
+          })
+        }
+      } catch (error) {
+        console.error("Failed to load settings:", error)
+        setSettings(DEFAULT_SETTINGS)
+      }
+    }
+
+    loadSettings()
+  }, [isClient])
+
+  // storage 이벤트 리스너 등록
+  useEffect(() => {
+    if (!isClient) return
+
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === "mealAppSettings" && e.newValue) {
+        try {
+          setSettings(JSON.parse(e.newValue))
+        } catch (error) {
+          console.error("Failed to parse settings from storage event:", error)
+        }
+      }
+    }
+
+    window.addEventListener("storage", handleStorageChange)
+    return () => window.removeEventListener("storage", handleStorageChange)
+  }, [isClient])
 
   // 칼로리 정보 가져오기
   useEffect(() => {
@@ -158,40 +227,69 @@ export function DietScreen({ onNavigate }: DietScreenProps) {
   const isLess = calorieDiff < 0
   const emoji = <img src="/logos/fireball.svg" className="h-30 flex-2" alt="mealgo logo" />
 
+  // 다크모드에 따른 스타일 변수
+  const bgGradient = settings.darkMode
+    ? "bg-gradient-to-b from-[#000000] to-[#4325A5]"
+    : "bg-gradient-to-b from-[#f0f0f0] to-[#d0d0ff]"
+  
+  const textColor = settings.darkMode ? "text-white" : "text-gray-800"
+  const textSecondary = settings.darkMode ? "text-white/60" : "text-gray-600"
+  const textTertiary = settings.darkMode ? "text-white/50" : "text-gray-500"
+  const textQuaternary = settings.darkMode ? "text-white/70" : "text-gray-700"
+  
+  const cardBg = settings.darkMode ? "bg-black/50" : "bg-white/90"
+  const cardBorder = settings.darkMode ? "border-white/20" : "border-gray-300"
+  
+  const inputBg = settings.darkMode ? "bg-transparent" : "bg-white"
+  const inputBorder = settings.darkMode ? "border-2" : "border-2 border-gray-300"
+  const inputText = settings.darkMode ? "text-white" : "text-gray-800"
+  
+  const buttonBg = settings.darkMode ? "bg-white text-black hover:bg-gray-100" : "bg-blue-600 text-white hover:bg-blue-700"
+  
+  const historyBg = settings.darkMode ? "bg-white/5" : "bg-gray-100"
+  const historyText = settings.darkMode ? "text-white" : "text-gray-800"
+  const historySecondary = settings.darkMode ? "text-white/60" : "text-gray-600"
+  
+  const accentBg = settings.darkMode ? "bg-white/10" : "bg-blue-50"
+  const accentText = settings.darkMode ? "text-white/70" : "text-gray-700"
+  const accentBold = settings.darkMode ? "text-white" : "text-gray-900"
+  
+  const titleColor = settings.darkMode ? "text-purple-700" : "text-purple-600"
+
   return (  
-    <div className="flex flex-col min-h-screen bg-gradient-to-b from-[#000000] to-[#4325A5]">
+    <div className={`flex flex-col min-h-screen ${bgGradient}`}>
       <div className="flex-1 px-6 pt-12 pb-24">
-        <h2 className="text-lg font-medium text-white mb-4">
+        <h2 className={`text-lg font-medium ${textColor} mb-4`}>
           {formatDisplayDate(today)} 급식은 어제 급식보다
         </h2>
 
-        <div className="bg-black/50 backdrop-blur-sm rounded-3xl p-8 mb-4 relative overflow-hidden border-2 border-white/20">
+        <div className={`${cardBg} backdrop-blur-sm rounded-3xl p-8 mb-4 relative overflow-hidden border-2 ${cardBorder}`}>
           {loading ? (
-            <div className="text-center py-8 text-white/70">
+            <div className={`text-center py-8 ${textQuaternary}`}>
               <p>칼로리 정보를 불러오는 중...</p>
             </div>
           ) : (
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-6xl font-bold text-white mb-2">
+                <p className={`text-6xl font-bold ${textColor} mb-2`}>
                   {Math.abs(percentDiff)}%
                 </p>
                 <p className={`${isLess ? 'text-blue-400' : 'text-red-400'} text-sm`}>
                   <span className="font-semibold">{Math.abs(calorieDiff).toFixed(1)}kcal</span> {isLess ? '줄어듦' : '늘어남'}
                 </p>
-<p className="text-white/50 text-xs mt-2">
-  어제: {actualYesterdayCalorie.toFixed(1)}kcal → 오늘: {actualConsumedCalorie.toFixed(1)}kcal
-</p>
+                <p className={`${textTertiary} text-xs mt-2`}>
+                  어제: {actualYesterdayCalorie.toFixed(1)}kcal → 오늘: {actualConsumedCalorie.toFixed(1)}kcal
+                </p>
               </div>
               <div className="text-6xl">{emoji}</div>
             </div>
           )}
         </div>
 
-        <div className="bg-black/50 backdrop-blur-sm rounded-3xl p-6 border-2 border-white/20">
-          <h4 className="text-purple-700  text-xl font-bold mb-2">칼로리 계산기</h4>
-          <p className="text-white/60 text-sm mb-4">
-          오늘 급식 총 칼로리: <span className="font-bold text-white">{todayCalorie.toFixed(1)}kcal</span>
+        <div className={`${cardBg} backdrop-blur-sm rounded-3xl p-6 border-2 ${cardBorder}`}>
+          <h4 className={`${titleColor} text-xl font-bold mb-2`}>칼로리 계산기</h4>
+          <p className={`${textSecondary} text-sm mb-4`}>
+            오늘 급식 총 칼로리: <span className={`font-bold ${textColor}`}>{todayCalorie.toFixed(1)}kcal</span>
           </p>
 
           <div className="flex gap-3 mb-4">
@@ -200,7 +298,7 @@ export function DietScreen({ onNavigate }: DietScreenProps) {
                 type="number"
                 value={percentage}
                 onChange={(e) => setPercentage(e.target.value)}
-                className="w-full h-12 bg-transparent border-2 text-white text-center text-lg font-medium"
+                className={`w-full h-12 ${inputBg} ${inputBorder} ${inputText} text-center text-lg font-medium`}
                 placeholder="0-100"
                 min="0"
                 max="100"
@@ -208,15 +306,15 @@ export function DietScreen({ onNavigate }: DietScreenProps) {
             </div>
             <Button 
               onClick={handleCalculate}
-              className="h-12 px-8 bg-white text-black hover:bg-gray-100 rounded-xl font-bold"
+              className={`h-12 px-8 ${buttonBg} rounded-xl font-bold`}
             >
               확인
             </Button>
           </div>
 
-          <div className="bg-white/10 rounded-xl p-3 mb-4">
-            <p className="text-white/70 text-xs mb-1">예상 섭취 칼로리</p>
-            <p className="text-white text-2xl font-bold">
+          <div className={`${accentBg} rounded-xl p-3 mb-4`}>
+            <p className={`${accentText} text-xs mb-1`}>예상 섭취 칼로리</p>
+            <p className={`${accentBold} text-2xl font-bold`}>
               {Math.round((todayCalorie * parseFloat(percentage || '0')) / 100)}kcal
             </p>
           </div>
@@ -225,18 +323,18 @@ export function DietScreen({ onNavigate }: DietScreenProps) {
         {/* 최근 기록 표시 */}
         {calorieHistory.length > 0 && (
           <div className="mt-6">
-            <h4 className="text-white/70 text-sm mb-3">최근 기록</h4>
+            <h4 className={`${textQuaternary} text-sm mb-3`}>최근 기록</h4>
             <div className="space-y-2">
               {calorieHistory.slice(-3).reverse().map((record, idx) => (
                 <div 
                   key={idx}
-                  className="bg-white/5 rounded-xl p-3 flex justify-between items-center"
+                  className={`${historyBg} rounded-xl p-3 flex justify-between items-center`}
                 >
                   <div>
-                    <p className="text-white font-medium">
+                    <p className={`${historyText} font-medium`}>
                       {record.date.substring(4, 6)}월 {record.date.substring(6, 8)}일
                     </p>
-                    <p className="text-white/60 text-sm">
+                    <p className={`${historySecondary} text-sm`}>
                       {record.percentage}% 섭취 ({Math.round((record.totalCalorie * record.percentage) / 100)}kcal)
                     </p>
                   </div>
@@ -247,7 +345,6 @@ export function DietScreen({ onNavigate }: DietScreenProps) {
         )}
       <BottomNav currentTab="diet" onNavigate={onNavigate} />
       </div>
-
 
       {showDeleteModal && <TagDeleteModal onClose={() => setShowDeleteModal(false)} />}
     </div>
