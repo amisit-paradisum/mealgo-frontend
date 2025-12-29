@@ -257,8 +257,8 @@ export function DietScreen({ onNavigate }: DietScreenProps) {
   const titleColor = settings.darkMode ? "text-purple-700" : "text-purple-600"
 
   return (  
-    <div className={`flex flex-col min-h-screen ${bgGradient}`}>
-      <div className="flex-1 px-6 pt-12 pb-24">
+    <div className={`flex flex-col min-h-screen ${bgGradient} items-center`}>
+      <div className=" flex-1 px-6 pt-12 pb-24">
         <h2 className={`text-lg font-medium ${textColor} mb-4`}>
           {formatDisplayDate(today)} 급식은 어제 급식보다
         </h2>
