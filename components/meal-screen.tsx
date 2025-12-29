@@ -483,12 +483,12 @@ export function MealScreen({ onNavigate }: MealScreenProps) {
                   {loadingMeals ? (
                     <div className={`text-center py-8 ${textColor} opacity-70`}>급식 정보를 불러오는 중...</div>
                   ) : currentMenu.length > 0 ? (
-                    <div className="space-y-3.5 text-center flex flex-col">
+                    <div className="space-y-3.5 text-center flex flex-col items-center">
                       {currentMenu.map((item, i) => (
                         <p
                           onClick={() => goGoogleSearch(item)}
                           key={i}
-                          className={`text-xl font-large tracking-wide cursor-pointer ${
+                          className={`text-xl inline-block font-large tracking-wide cursor-pointer ${
                             isBookmarked(item) 
                               ? 'text-[#5B9FFF] font-bold' 
                               : textColor
