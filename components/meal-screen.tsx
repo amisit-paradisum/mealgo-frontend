@@ -371,8 +371,8 @@ export function MealScreen({ onNavigate }: MealScreenProps) {
     : "bg-white/80"
   
   const cardStyle = settings.darkMode
-    ? "bg-[#0e0f2b] border-white/20 shadow-[0_0_30px_#3f2b96]"
-    : "bg-white border-gray-300 shadow-xl"
+    ? "bg-[#0e0f2b] border-white/20 sm:shadow-[0_0_30px_#3f2b96]"
+    : "bg-white border-gray-300 sm:shadow-xl"
   
   const timetableCardStyle = settings.darkMode
     ? "bg-[#0e0f2b]"
