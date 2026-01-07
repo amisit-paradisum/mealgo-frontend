@@ -6,11 +6,11 @@ import { accessTokenState } from "@/recoil/auth"
 import api from "@/lib/api/api"
 
 import { LoginScreen } from "@/components/login-screen"
-import { OnboardingScreen } from "@/components/onboarding-screen"
 import { MealScreen } from "@/components/meal-screen"
 import { DietScreen } from "@/components/diet-screen"
 import { BookmarkScreen } from "@/components/bookmark-screen"
 import { SettingsScreen } from "@/components/settings-screen"
+import { OnboardingScreen } from "@/components/onboarding-screen"
 
 export default function Home() {
   const [currentScreen, setCurrentScreen] = useState<
@@ -64,10 +64,21 @@ export default function Home() {
     <div className="min-h-screen">
       {currentScreen === "meal" && <MealScreen onNavigate={setCurrentScreen} />}
       {currentScreen === "login" && <LoginScreen onNext={() => setCurrentScreen("meal")} />}
-      {currentScreen === "onboarding" && <OnboardingScreen onNext={() => setCurrentScreen("onboardingGrade")} />}
+      {currentScreen === "onboarding" && (
+        <OnboardingScreen onNext={() => setCurrentScreen("meal")} />
+      )}
       {currentScreen === "diet" && <DietScreen onNavigate={setCurrentScreen} />}
       {currentScreen === "bookmark" && <BookmarkScreen onNavigate={setCurrentScreen} />}
-      {currentScreen === "settings" && <SettingsScreen onBack={() => setCurrentScreen("meal")} />}
+      {currentScreen === "settings" && (
+        <SettingsScreen 
+          onBack={() => setCurrentScreen("meal")}
+          onNavigateToOnboarding={() => {
+            console.log("onNavigateToOnboarding 호출됨")
+            setCurrentScreen("onboarding")
+          }}
+        />
+      )}
     </div>
   )
 }
+  

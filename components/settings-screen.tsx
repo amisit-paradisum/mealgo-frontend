@@ -2,10 +2,11 @@
 
 import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
-import { ChevronLeft } from "lucide-react"
+import { ChevronLeft, ChevronRight } from "lucide-react"
 
 interface SettingsScreenProps {
   onBack: () => void
+  onNavigateToOnboarding?: () => void
 }
 
 // 설정 타입 정의
@@ -28,7 +29,7 @@ const defaultSettings: Settings = {
   className: "1"
 }
 
-export function SettingsScreen({ onBack }: SettingsScreenProps) {
+export function SettingsScreen({ onBack, onNavigateToOnboarding }: SettingsScreenProps) {
   const [settings, setSettings] = useState<Settings>(defaultSettings)
   const [isClient, setIsClient] = useState(false)
 
@@ -95,6 +96,16 @@ export function SettingsScreen({ onBack }: SettingsScreenProps) {
     }
   }
 
+  // 학교 변경 핸들러
+  const handleSchoolChange = () => {
+    console.log("학교 변경 클릭됨") // 디버깅용
+    if (onNavigateToOnboarding) {
+      onNavigateToOnboarding()
+    } else {
+      console.warn("onNavigateToOnboarding이 정의되지 않았습니다")
+    }
+  }
+
   // 다크모드에 따른 스타일 변수
   const bgColor = settings.darkMode ? "bg-[#140D2B]" : "bg-gray-50"
   const textColor = settings.darkMode ? "text-white" : "text-gray-800"
@@ -146,6 +157,14 @@ export function SettingsScreen({ onBack }: SettingsScreenProps) {
           itemBg={settingItemBg}
           itemBorder={settingItemBorder}
         />
+        <SettingItem
+          label="학교 변경"
+          darkMode={settings.darkMode}
+          itemBg={settingItemBg}
+          itemBorder={settingItemBorder}
+          isNavigation={true}
+          onClick={handleSchoolChange}
+        />
       </div>
       <div className="flex-1" />
       <div className="w-full flex justify-center mb-6">
@@ -168,20 +187,42 @@ function SettingItem({
   darkMode,
   itemBg,
   itemBorder,
+  isNavigation = false,
+  onClick,
 }: {
   label: string
-  checked: boolean
-  onToggle: () => void
+  checked?: boolean
+  onToggle?: () => void
   darkMode: boolean
   itemBg: string
   itemBorder: string
+  isNavigation?: boolean
+  onClick?: () => void
 }) {
   const textColor = darkMode ? "text-white" : "text-gray-800"
+  const iconColor = darkMode ? "text-white" : "text-gray-800"
+
+  const handleClick = (e: React.MouseEvent) => {
+    if (isNavigation && onClick) {
+      e.stopPropagation() // 이벤트 버블링 방지
+      console.log("SettingItem 클릭됨:", label) // 디버깅용
+      onClick()
+    }
+  }
 
   return (
-    <div className={`flex items-center justify-between ${itemBg} ${itemBorder} rounded-2xl px-6 py-5`}>
+    <div 
+      className={`flex items-center justify-between ${itemBg} ${itemBorder} rounded-2xl px-6 py-5 ${
+        isNavigation ? 'cursor-pointer hover:opacity-80 transition-opacity' : ''
+      }`}
+      onClick={handleClick}
+    >
       <span className={`${textColor} font-medium`}>{label}</span>
-      <CustomSwitch checked={checked} onToggle={onToggle} darkMode={darkMode} />
+      {isNavigation ? (
+        <ChevronRight className={`w-6 h-6 ${iconColor}`} />
+      ) : (
+        <CustomSwitch checked={checked || false} onToggle={onToggle || (() => {})} darkMode={darkMode} />
+      )}
     </div>
   )
 }
