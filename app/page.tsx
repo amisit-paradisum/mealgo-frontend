@@ -1,10 +1,8 @@
 "use client"
-
 import { useState, useEffect } from "react"
 import { useSetRecoilState } from "recoil"
 import { accessTokenState } from "@/recoil/auth"
 import api from "@/lib/api/api"
-
 import { LoginScreen } from "@/components/login-screen"
 import { MealScreen } from "@/components/meal-screen"
 import { DietScreen } from "@/components/diet-screen"
@@ -13,48 +11,37 @@ import { SettingsScreen } from "@/components/settings-screen"
 import { OnboardingScreen } from "@/components/onboarding-screen"
 
 export default function Home() {
-  const [currentScreen, setCurrentScreen] = useState<
-    "login" | "onboarding" | "onboardingGrade" | "meal" | "diet" | "bookmark" | "settings"
-  >("meal")
-
+const [currentScreen, setCurrentScreen] = useState<"login" | "onboarding" | "onboardingGrade" | "meal" | "diet" | "bookmark" | "settings">("meal")
   const setAccessToken = useSetRecoilState(accessTokenState)
 
   useEffect(() => {
     const checkAuth = async () => {
       const refresh = localStorage.getItem("refresh")
-
       if (!refresh) {
-        setCurrentScreen("login")
+        // 토큰 없어도 meal 화면 유지 (로그인 강제 X)
         return
       }
-
       try {
-         const res = await api.get("/auth/refresh", {
-            headers: {
-              "refresh-token": refresh
-            }
-          })
-
-        console.log(res)
-        const newToken = res.data;
-
+        const res = await api.get("/auth/refresh", {
+          headers: {
+            "refresh-token": refresh
+          }
+        })
+        const newToken = res.data
         if (newToken) {
           setAccessToken(newToken)
         }
-
         setCurrentScreen("meal")
       } catch (err: any) {
-        
         if (err?.response?.status === 401) {
           localStorage.removeItem("refresh")
-        }else{
-          console.error("끼야아악 인증 또 터짐ㅁ:", err.message);
+        } else {
+          console.error("끼야아악 인증 또 터짐ㅁ:", err.message)
           localStorage.removeItem("refresh")
         }
-        setCurrentScreen("login")
+        // 인증 실패해도 meal 화면 유지 (로그인 강제 X)
       }
     }
-
     checkAuth()
   }, [setAccessToken])
 
@@ -70,7 +57,7 @@ export default function Home() {
       {currentScreen === "diet" && <DietScreen onNavigate={setCurrentScreen} />}
       {currentScreen === "bookmark" && <BookmarkScreen onNavigate={setCurrentScreen} />}
       {currentScreen === "settings" && (
-        <SettingsScreen 
+        <SettingsScreen
           onBack={() => setCurrentScreen("meal")}
           onNavigateToOnboarding={() => {
             console.log("onNavigateToOnboarding 호출됨")
@@ -81,4 +68,3 @@ export default function Home() {
     </div>
   )
 }
-  
